@@ -24,6 +24,3 @@ Sistema dijitál ba sirkulasaun dokumentu (paperless) iha **Gabinete Prezidente 
 | Frontend | Bootstrap / Tailwind CSS (Mobile Responsive) |
 | Seguransa | PBKDF2 + SHA256, RBAC, Secure Media Access |
 
-## Dezenvolvedór
-
-Pio & Jesti — Estajiáriu Informatika UNTL
