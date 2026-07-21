@@ -40,8 +40,7 @@ Reusable `RoleRequiredMixin`, `LoginRequiredMixin` for CBVs to enforce RBAC.
 | **django-guardian** | Object-level permissions | Staff may have access to specific letters only |
 | **django-filter** | Search/filter on letter lists | Staff needs to filter by date, status, sender |
 | **django-notifications-hq** | In-app notifications | RF-10 notification system with read/unread |
-| **celery** + **redis** | Async task queue | Deadline reminders, email alerts (non-blocking) |
-| **django-celery-beat** | Scheduled tasks | Auto-check overdue tasks daily |
+| **python-crontab** | Scheduled tasks | Deadline reminders, email alerts (via Django management commands + system cron) |
 | **weasyprint** | PDF generation | RF-05 draft → generate official letter PDF |
 | **django-cleanup** | Auto-delete old PDF files | Prevents orphaned file storage when records are deleted |
 | **whitenoise** | Static file serving | Production static file handling integrated with Django |
@@ -54,6 +53,8 @@ Reusable `RoleRequiredMixin`, `LoginRequiredMixin` for CBVs to enforce RBAC.
 
 | Library | Reason |
 |---|---|
+| **celery** + **redis** | Overkill for local deployment — adds 3 extra services (worker, beat, broker). Use `python-crontab` + management commands instead. |
+| **django-celery-beat** | Replaced by system cron |
 | **django-rest-framework** | Not needed — no API requirements in SRD |
 | **django-reversion** | Adds complexity; audit trail can be simpler |
 | **django-taggit** | No tagging requirement in SRD |
@@ -68,7 +69,7 @@ paperless_office/
 │
 ├── manage.py
 ├── requirements.txt
-├── docker-compose.yml                 # For local dev (MySQL + Redis)
+├── docker-compose.yml                 # For local dev (MySQL optional)
 ├── Dockerfile
 ├── Makefile                           # Common dev commands
 │
@@ -140,7 +141,7 @@ paperless_office/
 │   │   ├── models.py                  # TaskAssignment, Notification, Deadline
 │   │   ├── services.py                # DashboardService, NotificationService
 │   │   ├── signals.py                 # post_save → notification hooks
-│   │   ├── tasks.py                   # Celery: deadline_reminder, overdue_check
+│   │   ├── tasks.py                   # Deadline check logic (called by management command)
 │   │   ├── admin.py
 │   │   ├── views.py                   # DashboardView, ReportView
 │   │   ├── urls.py
@@ -354,23 +355,41 @@ class Role(models.TextChoices):
 | New letter registered | `post_save` on InboundLetter | President |
 | Assignment created | `post_save` on Assignment | Assigned Staff |
 | Approval decision made | `post_save` on ApprovalStage | Draft creator |
-| Deadline approaching (3 days) | Celery beat — daily check | Task assignees |
-| Deadline overdue | Celery beat — daily check | Task assignees + President |
+| Deadline approaching (3 days) | Cron — `check_deadlines` daily | Task assignees |
+| Deadline overdue | Cron — `check_deadlines` daily | Task assignees + President |
 
-### 7.2 Celery Tasks
+### 7.2 Scheduled Tasks (Management Commands + Cron)
+
+Instead of Celery (which requires a broker + worker + beat), use Django management commands triggered by the system's cron daemon. Zero extra services, zero configuration:
 
 ```python
-# tasks.py
-@shared_task
-def check_deadline_reminders():
-    """Runs daily — sends notifications for upcoming/overdue deadlines."""
-    ...
+# management/commands/check_deadlines.py
+from django.core.management.base import BaseCommand
 
-@shared_task
-def send_weekly_summary():
-    """Optional: weekly email to President with pending items."""
-    ...
+class Command(BaseCommand):
+    help = "Check upcoming/overdue deadlines and send notifications"
+
+    def handle(self, *args, **options):
+        # Query assignments nearing or past deadline
+        # Create notifications for assignees + President
+        ...
 ```
+
+**Cron entry (on the server):**
+```bash
+# Run daily at 8 AM
+0 8 * * * /path/to/venv/bin/python /path/to/manage.py check_deadlines
+
+# Weekly summary every Monday at 9 AM
+0 9 * * 1 /path/to/venv/bin/python /path/to/manage.py weekly_summary
+```
+
+**Benefits over Celery:**
+- No broker (Redis) needed — works fully offline
+- No worker process to manage
+- No beat scheduler process
+- One less point of failure
+- Simpler deployment (just Django + cron)
 
 ---
 
@@ -395,7 +414,7 @@ def send_weekly_summary():
 - **Database indexing** on `status`, `tracking_code`, `assigned_to`, `due_date`
 - **Database query optimization** — use `select_related()` and `prefetch_related()` in views
 - **Pagination** on all list views (25 items per page default)
-- **Redis** for Celery broker + cache backend
+- **Database-based caching** (Django's built-in cache table) or local memory cache — no Redis needed
 
 ---
 
@@ -411,8 +430,6 @@ DB_USER=root
 DB_PASSWORD=
 DB_HOST=localhost
 DB_PORT=3306
-
-REDIS_URL=redis://localhost:6379/0
 
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
@@ -432,7 +449,7 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 4. `common` app — Shared mixins, choices, utilities
 5. `inbound_letters` app — Models, services, views, filters
 6. `outbound_letters` app — Draft, approval workflow
-7. `monitoring` app — Dashboard, notifications, Celery tasks
+7. `monitoring` app — Dashboard, notifications, management commands for scheduled tasks
 8. Templates — Base layout, partials, responsive UI with Tailwind
 9. Tests — 80%+ coverage across all apps
 10. Docker + CI/CD pipeline

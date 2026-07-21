@@ -18,11 +18,12 @@ Sistema dijitál ba sirkulasaun dokumentu (paperless) iha **Gabinete Prezidente 
 ## Teknolojia
 
 | Komponente | Tecnologia |
-|---|---|
+|---|---|---|
 | Framework | Django 5.x |
-| Database | MySQL |
-| Frontend | Bootstrap / Tailwind CSS (Mobile Responsive) |
+| Database | MySQL/SQLite |
+| Frontend | Tailwind CSS (Mobile Responsive) |
 | Seguransa | PBKDF2 + SHA256, RBAC, Secure Media Access |
+| Task Scheduling | Django management commands + system cron |
 
 ## Instituisaun
 
