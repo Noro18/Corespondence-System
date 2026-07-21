@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="tet">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sistema Korespondensia{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <nav class="bg-blue-900 text-white px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <span class="font-bold text-lg">Sistema Korespondensia</span>
+      <span class="text-blue-200 text-sm">{{ user.get_full_name }} ({{ user.get_role_display }})</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{% url 'admin:index' %}" class="text-blue-200 hover:text-white text-sm">Admin</a>
+      <a href="{% url 'admin:logout' %}" class="text-blue-200 hover:text-white text-sm">Sai</a>
+    </div>
+  </nav>
+
+  <div class="flex">
+    <aside class="w-56 bg-white shadow min-h-[calc(100vh-64px)] p-4">
+      <ul class="space-y-2">
+        <li><a href="{% url 'monitoring:dashboard' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Dashboard</a></li>
+        {% if user.role == 'SEK' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'admin:inbound_letters_inboundletter_add' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Rejistu Karta Tama</a></li>
+        {% endif %}
+        {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'admin:inbound_letters_inboundletter_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Karta Tama Hotu</a></li>
+        <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Asuntu Karta</a></li>
+        {% endif %}
+        {% if user.role == 'STF' %}
+        <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Ha'u-nia Tarefa</a></li>
+        {% endif %}
+        <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Remetente</a></li>
+      </ul>
+    </aside>
+
+    <main class="flex-1 p-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</body>
+</html>
