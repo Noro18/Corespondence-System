@@ -4,9 +4,9 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     class Role(models.TextChoices):
-        ADMIN = "ADMIN", "Administrador"
-        SEKRETARIADU = "SEK", "Sekretariadu"
-        PREZIDENTE = "PREZ", "Prezidente"
+        ADMIN = "ADMIN", "Administrator"
+        SEKRETARIADU = "SEK", "Secretariat"
+        PREZIDENTE = "PREZ", "President"
         STAFF = "STF", "Staff"
 
     role = models.CharField(max_length=5, choices=Role.choices, default=Role.STAFF)

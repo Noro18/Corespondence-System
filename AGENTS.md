@@ -34,4 +34,4 @@ See [RBAC Plan](docs/rbac-plan.md#2-permission-matrix) for the full permission m
 - Use `CustomUser.Role` enum for role checks in templates
 - Always use `on_delete=models.PROTECT` for government-critical FKs
 - Add `created_at` / `updated_at` to every model
-- Write templates in Tetum/Portuguese where user-facing
+- Write templates in English (user-facing labels, statuses, buttons)

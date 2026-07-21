@@ -17,10 +17,10 @@ class Sender(models.Model):
 
 class InboundLetter(models.Model):
     class Status(models.TextChoices):
-        REGISTERED = "REG", "Rejistadu"
-        ASSIGNED = "ASN", "Atribuídu"
-        COMPLETED = "CMP", "Kompletadu"
-        ARCHIVED = "ARC", "Arkivadu"
+        REGISTERED = "REG", "Registered"
+        ASSIGNED = "ASN", "Assigned"
+        COMPLETED = "CMP", "Completed"
+        ARCHIVED = "ARC", "Archived"
 
     tracking_code = models.CharField(max_length=20, unique=True, editable=False)
     title = models.CharField(max_length=255)
@@ -51,9 +51,9 @@ class InboundLetter(models.Model):
 
 class Assignment(models.Model):
     class Status(models.TextChoices):
-        PENDING = "PND", "Pendente"
-        IN_PROGRESS = "IPR", "La'o Helá"
-        COMPLETED = "CMP", "Kompletadu"
+        PENDING = "PND", "Pending"
+        IN_PROGRESS = "IPR", "In Progress"
+        COMPLETED = "CMP", "Completed"
 
     letter = models.ForeignKey(
         InboundLetter, on_delete=models.CASCADE, related_name="assignments"

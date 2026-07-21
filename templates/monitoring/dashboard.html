@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Sistema Korespondensia{% endblock %}
+{% block title %}Dashboard - Correspondence System{% endblock %}
 
 {% block content %}
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
   <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-400">
-    <p class="text-sm text-gray-500 uppercase">Karta Pendente</p>
+    <p class="text-sm text-gray-500 uppercase">Pending Letters</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ total_pending }}</p>
-    <p class="text-xs text-gray-400 mt-1">Hein deskrisaun</p>
+    <p class="text-xs text-gray-400 mt-1">Awaiting processing</p>
   </div>
 
   <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-400">
-    <p class="text-sm text-gray-500 uppercase">La'o Helá</p>
+    <p class="text-sm text-gray-500 uppercase">In Progress</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ in_progress }}</p>
-    <p class="text-xs text-gray-400 mt-1">Asignasaun ne'ebé la'o hela</p>
+    <p class="text-xs text-gray-400 mt-1">Active assignments</p>
   </div>
 
   <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-400">
-    <p class="text-sm text-gray-500 uppercase">Atrasadu</p>
+    <p class="text-sm text-gray-500 uppercase">Overdue</p>
     <p class="text-3xl font-bold text-red-600 mt-2">{{ overdue }}</p>
-    <p class="text-xs text-gray-400 mt-1">Liuhosi prazu</p>
+    <p class="text-xs text-gray-400 mt-1">Past due date</p>
   </div>
 
 </div>
@@ -29,14 +29,14 @@
 {% if overdue_assignments %}
 <div class="bg-white rounded-lg shadow mb-8">
   <div class="px-6 py-4 border-b border-red-200 bg-red-50">
-    <h2 class="font-semibold text-red-700">Alerta: Asignasaun Atrasadu</h2>
+    <h2 class="font-semibold text-red-700">Alert: Overdue Assignments</h2>
   </div>
   <div class="overflow-x-auto">
     <table class="w-full text-sm">
       <thead>
         <tr class="bg-gray-50 text-gray-600 text-left">
-          <th class="px-6 py-3">Karta</th>
-          <th class="px-6 py-3">Atribuídu ba</th>
+          <th class="px-6 py-3">Letter</th>
+          <th class="px-6 py-3">Assigned To</th>
           <th class="px-6 py-3">Due Date</th>
           <th class="px-6 py-3">Status</th>
         </tr>
@@ -48,7 +48,7 @@
           <td class="px-6 py-3">{{ task.assigned_to.get_full_name }}</td>
           <td class="px-6 py-3 text-red-600 font-medium">{{ task.due_date|date:"d/m/Y" }}</td>
           <td class="px-6 py-3">
-            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Atrasadu</span>
+            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Overdue</span>
           </td>
         </tr>
         {% endfor %}
@@ -62,15 +62,15 @@
 
   <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
-      <h2 class="font-semibold text-gray-700">Karta Tama Resente</h2>
+      <h2 class="font-semibold text-gray-700">Recent Inbound Letters</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-gray-50 text-gray-600 text-left">
-            <th class="px-6 py-3">Kódigu</th>
-            <th class="px-6 py-3">Títulu</th>
-            <th class="px-6 py-3">Remetente</th>
+            <th class="px-6 py-3">Code</th>
+            <th class="px-6 py-3">Title</th>
+            <th class="px-6 py-3">Sender</th>
             <th class="px-6 py-3">Status</th>
           </tr>
         </thead>
@@ -85,7 +85,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4" class="px-6 py-4 text-gray-400 text-center">Seidauk iha karta</td></tr>
+          <tr><td colspan="4" class="px-6 py-4 text-gray-400 text-center">No letters yet</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -94,14 +94,14 @@
 
   <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
-      <h2 class="font-semibold text-gray-700">Ha'u-nia Tarefa</h2>
+      <h2 class="font-semibold text-gray-700">My Tasks</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-gray-50 text-gray-600 text-left">
-            <th class="px-6 py-3">Karta</th>
-            <th class="px-6 py-3">Instruksaun</th>
+            <th class="px-6 py-3">Letter</th>
+            <th class="px-6 py-3">Instructions</th>
             <th class="px-6 py-3">Due Date</th>
             <th class="px-6 py-3">Status</th>
           </tr>
@@ -117,7 +117,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4" class="px-6 py-4 text-gray-400 text-center">Seidauk iha tarefa</td></tr>
+          <tr><td colspan="4" class="px-6 py-4 text-gray-400 text-center">No tasks assigned</td></tr>
           {% endfor %}
         </tbody>
       </table>
