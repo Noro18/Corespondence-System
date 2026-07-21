@@ -1,5 +1,7 @@
 # Architecture Document — Correspondence System
 
+> **RBAC Implementation:** See detailed role-permission matrix and implementation plan in [RBAC Plan](rbac-plan.md).
+
 ## 1. Architectural Patterns
 
 ### 1.1 MVT (Model-View-Template)
@@ -318,8 +320,10 @@ Use a middleware or template context processor to inject role-appropriate menu i
 
 ### 6.2 View-Level Access Control
 
+See [RBAC Plan](rbac-plan.md#3-implementation-layers) for the full mixin implementation.
+
 ```python
-# mixins.py
+# apps/common/mixins.py
 class RoleRequiredMixin(AccessMixin):
     allowed_roles: list[str] = []
 
@@ -329,8 +333,7 @@ class RoleRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 # Usage
-class DespaxuView(RoleRequiredMixin, UpdateView):
-    allowed_roles = [Role.PREZIDENTE]
+class DespaxuView(PrezidenteMixin, UpdateView):
     ...
 ```
 

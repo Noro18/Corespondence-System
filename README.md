@@ -14,6 +14,8 @@ Sistema dijitál ba sirkulasaun dokumentu (paperless) iha **Gabinete Prezidente 
 ## Dokumentasaun
 
 - [SRD — Dokumentu Spesifikasaun Rekizitu Sistema](docs/SRD.md)
+- [RBAC Plan — Role-Based Access Control](docs/rbac-plan.md)
+- [Architecture Document](docs/architecture.md)
 
 ## Teknolojia
 
