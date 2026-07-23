@@ -14,7 +14,9 @@
       <span class="text-blue-200 text-sm">{{ user.get_full_name }} ({{ user.get_role_display }})</span>
     </div>
     <div class="flex items-center gap-4">
+      {% if user.role == 'ADMIN' %}
       <a href="{% url 'admin:index' %}" class="text-blue-200 hover:text-white text-sm">Admin</a>
+      {% endif %}
       <a href="{% url 'accounts:logout' %}" class="text-blue-200 hover:text-white text-sm">Logout</a>
     </div>
   </nav>
@@ -23,6 +25,9 @@
     <aside class="w-56 bg-white shadow min-h-[calc(100vh-64px)] p-4">
       <ul class="space-y-2">
         <li><a href="{% url 'monitoring:dashboard' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Dashboard</a></li>
+        {% if user.role == 'ADMIN' %}
+        <li><a href="{% url 'accounts:user_list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Users</a></li>
+        {% endif %}
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
         <li><a href="{% url 'admin:inbound_letters_inboundletter_add' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Register Letter</a></li>
         {% endif %}
