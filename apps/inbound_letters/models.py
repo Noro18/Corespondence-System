@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.db import models
 
@@ -22,7 +24,7 @@ class InboundLetter(models.Model):
         COMPLETED = "CMP", "Completed"
         ARCHIVED = "ARC", "Archived"
 
-    tracking_code = models.CharField(max_length=20, unique=True, editable=False)
+    tracking_code = models.CharField(max_length=30, unique=True, editable=False)
     title = models.CharField(max_length=255)
     original_ref_no = models.CharField(max_length=100, blank=True)
     sender = models.ForeignKey(Sender, on_delete=models.PROTECT)
@@ -44,6 +46,21 @@ class InboundLetter(models.Model):
 
     class Meta:
         ordering = ["-received_date"]
+
+    def save(self, *args, **kwargs):
+        if not self.tracking_code:
+            today = datetime.date.today()
+            prefix = f"LTR-{today.strftime('%Y%m%d')}"
+            last = (
+                InboundLetter.objects.filter(tracking_code__startswith=prefix)
+                .order_by("id")
+                .last()
+            )
+            next_num = 1
+            if last:
+                next_num = int(last.tracking_code.split("-")[-1]) + 1
+            self.tracking_code = f"{prefix}-{next_num:04d}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
