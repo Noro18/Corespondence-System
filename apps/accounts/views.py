@@ -1,11 +1,24 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import BaseUserCreationForm, UserChangeForm
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from apps.common.mixins import AdminMixin
 
 from .models import CustomUser
+
+
+class CustomUserCreationForm(BaseUserCreationForm):
+    class Meta(BaseUserCreationForm.Meta):
+        model = CustomUser
+        fields = ("username", "first_name", "last_name", "email", "role", "phone", "department")
+
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
+        model = CustomUser
+        fields = ("username", "first_name", "last_name", "email", "role", "phone", "department", "is_active")
 
 
 class UserListView(AdminMixin, LoginRequiredMixin, ListView):
@@ -18,7 +31,7 @@ class UserListView(AdminMixin, LoginRequiredMixin, ListView):
 
 class UserCreateView(AdminMixin, LoginRequiredMixin, CreateView):
     model = CustomUser
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = "accounts/user_form.html"
     extra_context = {"title": "Add User"}
     success_url = reverse_lazy("accounts:user_list")
@@ -34,7 +47,7 @@ class UserCreateView(AdminMixin, LoginRequiredMixin, CreateView):
 
 class UserUpdateView(AdminMixin, LoginRequiredMixin, UpdateView):
     model = CustomUser
-    form_class = UserChangeForm
+    form_class = CustomUserChangeForm
     template_name = "accounts/user_form.html"
     extra_context = {"title": "Edit User"}
     success_url = reverse_lazy("accounts:user_list")
@@ -55,5 +68,5 @@ class UserDeleteView(AdminMixin, LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         self.object.is_active = False
-        self.object.save()
-        return super().form_valid(form)
+        self.object.save(update_fields=["is_active"])
+        return HttpResponseRedirect(self.get_success_url())
