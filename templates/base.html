@@ -26,7 +26,7 @@
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
         <li><a href="{% url 'admin:inbound_letters_inboundletter_add' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Register Letter</a></li>
         {% endif %}
-        {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
+        {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
         <li><a href="{% url 'admin:inbound_letters_inboundletter_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">All Inbound Letters</a></li>
         <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Assignments</a></li>
         {% endif %}

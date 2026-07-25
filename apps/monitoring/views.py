@@ -13,12 +13,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         today = timezone.now().date()
 
-        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE]:
+        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
             letters = InboundLetter.objects.all()
             assignments = Assignment.objects.all()
-        elif user.role == user.Role.SEKRETARIADU:
-            letters = InboundLetter.objects.filter(registered_by=user)
-            assignments = Assignment.objects.filter(letter__registered_by=user)
         else:
             letters = InboundLetter.objects.filter(assignments__assigned_to=user)
             assignments = Assignment.objects.filter(assigned_to=user)
