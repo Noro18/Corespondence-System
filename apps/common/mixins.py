@@ -7,6 +7,8 @@ class RoleRequiredMixin(AccessMixin):
     allowed_roles: list[str] = []
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         if request.user.role not in self.allowed_roles:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)

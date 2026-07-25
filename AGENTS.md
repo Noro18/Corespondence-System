@@ -28,6 +28,10 @@ A Django-based correspondence system for RAEOA / ZEEMS-TL government office.
 
 See [RBAC Plan](docs/rbac-plan.md#2-permission-matrix) for the full permission matrix.
 
+## ⚠️ Important Rules
+
+- **Never commit unless the user explicitly says so in their prompt.** Do not assume. Wait for a clear instruction like "commit", "push", "create PR", or "merge".
+
 ## Coding Conventions
 
 - Use `RoleRequiredMixin` from `apps.common.mixins` for view-level access control
