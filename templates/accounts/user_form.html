@@ -19,8 +19,16 @@
 
       {% for field in form %}
       <div>
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <div class="flex items-center gap-2">
+          {{ field }}
+          <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700">{{ field.label }}</label>
+        </div>
+        {% else %}
         <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
         {{ field }}
+        {% endif %}
+        
         {% if field.errors %}
         <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
         {% endif %}
