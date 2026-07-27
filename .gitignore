@@ -36,3 +36,4 @@ static_root/
 .env
 **.env
 docs/*.pdf
+envi/
