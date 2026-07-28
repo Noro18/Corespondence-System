@@ -39,6 +39,12 @@
         <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Tasks</a></li>
         {% endif %}
         <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Senders</a></li>
+        {% if user.role == 'SEK' or user.role == 'STF' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Drafts</a></li>
+        {% endif %}
+        {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Outbound Approvals</a></li>
+        {% endif %}
       </ul>
     </aside>
 
