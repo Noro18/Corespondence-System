@@ -1,7 +1,9 @@
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import BaseUserCreationForm, UserChangeForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from apps.common.mixins import AdminMixin
@@ -10,6 +12,13 @@ from .models import CustomUser
 
 
 import django.forms
+
+
+class CustomLogoutView(View):
+    def get(self, request):
+        auth_logout(request)
+        return HttpResponseRedirect(reverse("accounts:login"))
+
 
 class CustomUserCreationForm(BaseUserCreationForm):
     class Meta(BaseUserCreationForm.Meta):
