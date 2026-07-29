@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.inbound_letters",
     "apps.monitoring",
+    "apps.outbound_letters",
 ]
 
 AUTH_USER_MODEL = "accounts.CustomUser"
