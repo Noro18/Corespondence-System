@@ -1,12 +1,23 @@
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import BaseUserCreationForm, UserChangeForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from apps.common.mixins import AdminMixin
 
 from .models import CustomUser
+
+
+import django.forms
+
+
+class CustomLogoutView(View):
+    def get(self, request):
+        auth_logout(request)
+        return HttpResponseRedirect(reverse("accounts:login"))
 
 
 class CustomUserCreationForm(BaseUserCreationForm):
@@ -38,10 +49,15 @@ class UserCreateView(AdminMixin, LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        for field_name in form.fields:
-            form.fields[field_name].widget.attrs.update(
-                {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
-            )
+        for field_name, field in form.fields.items():
+            if isinstance(field.widget, django.forms.CheckboxInput):
+                field.widget.attrs.update(
+                    {"class": "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"}
+                )
+            else:
+                field.widget.attrs.update(
+                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+                )
         return form
 
 
@@ -54,10 +70,15 @@ class UserUpdateView(AdminMixin, LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        for field_name in form.fields:
-            form.fields[field_name].widget.attrs.update(
-                {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
-            )
+        for field_name, field in form.fields.items():
+            if isinstance(field.widget, django.forms.CheckboxInput):
+                field.widget.attrs.update(
+                    {"class": "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"}
+                )
+            else:
+                field.widget.attrs.update(
+                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+                )
         return form
 
 

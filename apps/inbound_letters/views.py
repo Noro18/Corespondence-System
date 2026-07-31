@@ -1,45 +1,64 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
-from .models import InboundLetter, Sender
-from .forms import InboundLetterForm, SenderForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, DetailView, ListView
 
-@login_required
-def inbound_list(request):
-    letters = InboundLetter.objects.all()
-    return render(request, "inbound_letters/inbound_list.html", {"letters": letters})
+from apps.common.mixins import AdminMixin, SekretariaduMixin
 
-@login_required
-def inbound_detail(request, pk):
-    letter = get_object_or_404(InboundLetter, pk=pk)
-    return render(request, "inbound_letters/inbound_detail.html", {"letter": letter})
+from .models import InboundLetter
 
-@login_required
-def inbound_create(request):
-    if request.method == "POST":
-        form = InboundLetterForm(request.POST, request.FILES)
-        if form.is_valid():
-            letter = form.save(commit=False)
-            import uuid
-            letter.tracking_code = f"IN-{uuid.uuid4().hex[:8].upper()}"
-            letter.registered_by = request.user
-            letter.save()
-            return redirect("inbound_detail", pk=letter.pk)
-    else:
-        form = InboundLetterForm()
-    return render(request, "inbound_letters/inbound_form.html", {"form": form})
 
-@login_required
-def sender_list(request):
-    senders = Sender.objects.all()
-    return render(request, "inbound_letters/sender_list.html", {"senders": senders})
+class InboundLetterListView(LoginRequiredMixin, ListView):
+    model = InboundLetter
+    template_name = "inbound_letters/letter_list.html"
+    context_object_name = "letters"
+    paginate_by = 25
 
-@login_required
-def sender_create(request):
-    if request.method == "POST":
-        form = SenderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("sender_list")
-    else:
-        form = SenderForm()
-    return render(request, "inbound_letters/sender_form.html", {"form": form})
+    def get_queryset(self):
+        qs = InboundLetter.objects.select_related("sender", "registered_by")
+        user = self.request.user
+        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            return qs
+        return qs.filter(assignments__assigned_to=user)
+
+
+class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):
+    model = InboundLetter
+    template_name = "inbound_letters/letter_form.html"
+    fields = [
+        "title", "original_ref_no", "sender", "letter_date",
+        "pdf_file", "description", "notes",
+    ]
+    extra_context = {"title": "Register Inbound Letter"}
+    success_url = reverse_lazy("inbound_letters:list")
+
+    def form_valid(self, form):
+        form.instance.registered_by = self.request.user
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["letter_date"].widget.attrs["type"] = "date"
+        for field in form.fields.values():
+            field.widget.attrs.setdefault("class",
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            )
+        return form
+
+
+class InboundLetterDetailView(LoginRequiredMixin, DetailView):
+    model = InboundLetter
+    template_name = "inbound_letters/letter_detail.html"
+    context_object_name = "letter"
+
+    def get_queryset(self):
+        qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to")
+        user = self.request.user
+        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            return qs
+        return qs.filter(assignments__assigned_to=user)
+
+
+class InboundLetterDeleteView(AdminMixin, LoginRequiredMixin, DeleteView):
+    model = InboundLetter
+    template_name = "inbound_letters/letter_confirm_delete.html"
+    success_url = reverse_lazy("inbound_letters:list")

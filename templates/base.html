@@ -29,20 +29,20 @@
         <li><a href="{% url 'accounts:user_list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Users</a></li>
         {% endif %}
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'admin:inbound_letters_inboundletter_add' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Register Letter</a></li>
+        <li><a href="{% url 'inbound_letters:create' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Register Letter</a></li>
         {% endif %}
         {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'admin:inbound_letters_inboundletter_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">All Inbound Letters</a></li>
-        <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Assignments</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">All Inbound Letters</a></li>
         {% endif %}
         {% if user.role == 'STF' %}
-        <li><a href="{% url 'admin:inbound_letters_assignment_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Tasks</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Tasks</a></li>
         {% endif %}
-        {% if user.role == 'ADMIN' or user.role == 'SEK' or user.role == 'PREZ' or user.role == 'STF' %}
-        <li><a href="{% url 'inbound_list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Inbound Letters</a></li>
+        <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Senders</a></li>
+        {% if user.role == 'SEK' or user.role == 'STF' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Drafts</a></li>
         {% endif %}
-        {% if user.role == 'ADMIN' or user.role == 'SEK' %}
-        <li><a href="{% url 'sender_list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Senders</a></li>
+        {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Outbound Approvals</a></li>
         {% endif %}
       </ul>
     </aside>

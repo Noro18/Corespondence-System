@@ -1,10 +1,12 @@
 from django.urls import path
+
 from . import views
 
+app_name = "inbound_letters"
+
 urlpatterns = [
-    path("inbound/", views.inbound_list, name="inbound_list"),
-    path("inbound/new/", views.inbound_create, name="inbound_create"),
-    path("inbound/<int:pk>/", views.inbound_detail, name="inbound_detail"),
-    path("senders/", views.sender_list, name="sender_list"),
-    path("senders/new/", views.sender_create, name="sender_create"),
+    path("", views.InboundLetterListView.as_view(), name="list"),
+    path("create/", views.InboundLetterCreateView.as_view(), name="create"),
+    path("<int:pk>/", views.InboundLetterDetailView.as_view(), name="detail"),
+    path("<int:pk>/delete/", views.InboundLetterDeleteView.as_view(), name="delete"),
 ]

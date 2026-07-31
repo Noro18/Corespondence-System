@@ -1,0 +1,88 @@
+import datetime
+
+from django.conf import settings
+from django.db import models
+
+
+class OutboundLetter(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = "DRF", "Draft"
+        IN_REVIEW = "REV", "In Review"
+        APPROVED = "APR", "Approved"
+        REJECTED = "REJ", "Rejected"
+        DISPATCHED = "DSP", "Dispatched"
+
+    tracking_code = models.CharField(max_length=30, unique=True, editable=False)
+    subject = models.CharField(max_length=255)
+    recipient_name = models.CharField(max_length=255)
+    recipient_institution = models.CharField(max_length=255)
+    recipient_address = models.TextField(blank=True)
+    original_ref_no = models.CharField(max_length=100, blank=True)
+    letter_date = models.DateField()
+    pdf_file = models.FileField(upload_to="outbound_pdfs/")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="outbound_letters",
+    )
+    status = models.CharField(
+        max_length=3, choices=Status.choices, default=Status.DRAFT, db_index=True
+    )
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        if not self.tracking_code:
+            today = datetime.date.today()
+            prefix = f"OUT-{today.strftime('%Y%m%d')}"
+            last = (
+                OutboundLetter.objects.filter(tracking_code__startswith=prefix)
+                .order_by("id")
+                .last()
+            )
+            next_num = 1
+            if last:
+                next_num = int(last.tracking_code.split("-")[-1]) + 1
+            self.tracking_code = f"{prefix}-{next_num:04d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.tracking_code} - {self.subject}"
+
+
+class ApprovalStage(models.Model):
+    class Stage(models.TextChoices):
+        REVIEW = "REV", "Review"
+        APPROVE = "APR", "Approval"
+        DISPATCH = "DSP", "Dispatch"
+
+    class Decision(models.TextChoices):
+        PENDING = "PND", "Pending"
+        APPROVED = "APR", "Approved"
+        REJECTED = "REJ", "Rejected"
+
+    letter = models.ForeignKey(
+        OutboundLetter, on_delete=models.CASCADE, related_name="approval_stages"
+    )
+    stage = models.CharField(max_length=3, choices=Stage.choices)
+    decision = models.CharField(
+        max_length=3, choices=Decision.choices, default=Decision.PENDING
+    )
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approval_decisions",
+    )
+    comments = models.TextField(blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.letter.tracking_code} - {self.get_stage_display()} ({self.get_decision_display()})"
