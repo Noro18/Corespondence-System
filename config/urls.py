@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.accounts.urls")),
     path("dashboard/", include("apps.monitoring.urls")),
+    path("", include("apps.inbound_letters.urls")),
     path("", RedirectView.as_view(url="/dashboard/", permanent=True)),
 ]
 

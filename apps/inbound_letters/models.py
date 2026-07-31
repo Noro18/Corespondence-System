@@ -29,6 +29,7 @@ class InboundLetter(models.Model):
     letter_date = models.DateField()
     received_date = models.DateTimeField(auto_now_add=True)
     pdf_file = models.FileField(upload_to="inbound_pdfs/")
+    thumbnail = models.ImageField(upload_to="inbound_thumbnails/", blank=True, null=True)
     description = models.TextField(blank=True)
     registered_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -47,6 +48,30 @@ class InboundLetter(models.Model):
 
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        # Generate placeholder or simple thumbnail if pdf_file exists
+        if self.pdf_file and not self.thumbnail:
+            try:
+                from PIL import Image, ImageDraw, ImageFont
+                import os
+                img = Image.new('RGB', (200, 260), color=(240, 242, 245))
+                d = ImageDraw.Draw(img)
+                d.rectangle([(10, 10), (190, 250)], outline=(200, 204, 210), width=2)
+                d.text((20, 30), "PDF DOCUMENT", fill=(30, 41, 59))
+                d.text((20, 60), f"Code: {self.tracking_code[:12]}", fill=(71, 85, 105))
+                
+                thumb_name = f"thumb_{self.pk}_{os.path.basename(self.pdf_file.name)}.png"
+                from django.core.files.base import ContentFile
+                import io
+                thumb_io = io.BytesIO()
+                img.save(thumb_io, format='PNG')
+                self.thumbnail.save(thumb_name, ContentFile(thumb_io.getvalue()), save=False)
+                super().save(update_fields=['thumbnail'])
+            except Exception:
+                pass
 
 
 class Assignment(models.Model):

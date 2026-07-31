@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_cleanup",
-    "apps.accounts",
-    "apps.inbound_letters",
-    "apps.monitoring",
+    "apps.accounts.apps.AccountsConfig",
+    "apps.inbound_letters.apps.InboundLettersConfig",
+    "apps.monitoring.apps.MonitoringConfig",
 ]
 
 AUTH_USER_MODEL = "accounts.CustomUser"

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Letter: {{ letter.tracking_code }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+  <div>
+    <a href="{% url 'inbound_list' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-1 inline-block">&larr; Back to Inbound Letters</a>
+    <h1 class="text-2xl font-bold text-gray-900">{{ letter.tracking_code }} - {{ letter.title }}</h1>
+  </div>
+  <div>
+    {% if letter.pdf_file %}
+    <a href="{{ letter.pdf_file.url }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm font-medium">Download Original PDF</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Letter Metadata -->
+  <div class="bg-white rounded-lg shadow p-6 space-y-4 lg:col-span-1">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Letter Information</h2>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Status</span>
+      <p class="text-sm font-medium text-blue-700">{{ letter.get_status_display }}</p>
+    </div>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Sender</span>
+      <p class="text-sm font-medium text-gray-900">{{ letter.sender.name }} {% if letter.sender.institution %}({{ letter.sender.institution }}){% endif %}</p>
+    </div>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Original Reference No</span>
+      <p class="text-sm font-medium text-gray-900">{{ letter.original_ref_no|default:"-" }}</p>
+    </div>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Letter Date</span>
+      <p class="text-sm font-medium text-gray-900">{{ letter.letter_date|date:"Y-m-d" }}</p>
+    </div>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Received Date</span>
+      <p class="text-sm font-medium text-gray-900">{{ letter.received_date|date:"Y-m-d H:i" }}</p>
+    </div>
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Registered By</span>
+      <p class="text-sm font-medium text-gray-900">{{ letter.registered_by.get_full_name|default:letter.registered_by.username }}</p>
+    </div>
+    {% if letter.description %}
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Description</span>
+      <p class="text-sm text-gray-700 mt-1">{{ letter.description }}</p>
+    </div>
+    {% endif %}
+    {% if letter.notes %}
+    <div>
+      <span class="text-xs text-gray-500 uppercase font-bold">Notes</span>
+      <p class="text-sm text-gray-700 mt-1">{{ letter.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Inline PDF Preview -->
+  <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 flex flex-col">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Inline PDF Preview</h2>
+    {% if letter.pdf_file %}
+    <div class="flex-1 min-h-[600px] border border-gray-200 rounded overflow-hidden">
+      <iframe src="{{ letter.pdf_file.url }}" width="100%" height="100%" style="min-height: 600px;" type="application/pdf">
+        <p class="p-4 text-gray-600">Your browser does not support inline PDFs. Please <a href="{{ letter.pdf_file.url }}" class="text-blue-600 underline">download the PDF</a> to view it.</p>
+      </iframe>
+    </div>
+    {% else %}
+    <div class="flex-1 flex items-center justify-center bg-gray-50 rounded border border-dashed border-gray-300 min-h-[300px]">
+      <p class="text-gray-500 text-sm">No PDF file attached to this letter.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
