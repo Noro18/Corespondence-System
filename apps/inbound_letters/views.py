@@ -5,7 +5,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView
 
 from apps.common.mixins import AdminMixin, SekretariaduMixin
 
-from .models import InboundLetter
+from .models import InboundLetter, Sender
 
 
 class InboundLetterListView(LoginRequiredMixin, ListView):
