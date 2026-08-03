@@ -38,8 +38,19 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        form.fields.pop("sender")
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+        )
+        form.fields["sender_name"] = forms.CharField(
+            max_length=255,
+            label="Sender",
+            widget=forms.TextInput(
+                attrs={
+                    "list": "senders-list",
+                    "placeholder": "Type or select sender name",
+                }
+            ),
         )
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
