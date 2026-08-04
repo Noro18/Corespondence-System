@@ -52,11 +52,11 @@ class UserCreateView(AdminMixin, LoginRequiredMixin, CreateView):
         for field_name, field in form.fields.items():
             if isinstance(field.widget, django.forms.CheckboxInput):
                 field.widget.attrs.update(
-                    {"class": "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"}
+                    {"class": "h-4 w-4 text-red-700 focus:ring-[#900000] border-gray-300 rounded"}
                 )
             else:
                 field.widget.attrs.update(
-                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
                 )
         return form
 
@@ -73,11 +73,11 @@ class UserUpdateView(AdminMixin, LoginRequiredMixin, UpdateView):
         for field_name, field in form.fields.items():
             if isinstance(field.widget, django.forms.CheckboxInput):
                 field.widget.attrs.update(
-                    {"class": "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"}
+                    {"class": "h-4 w-4 text-red-700 focus:ring-[#900000] border-gray-300 rounded"}
                 )
             else:
                 field.widget.attrs.update(
-                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+                    {"class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
                 )
         return form
 
