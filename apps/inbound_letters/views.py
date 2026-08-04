@@ -33,6 +33,9 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
     success_url = reverse_lazy("inbound_letters:list")
 
     def form_valid(self, form):
+        name = form.cleaned_data["sender_name"].strip()
+        sender, _ = Sender.objects.get_or_create(name=name)
+        form.instance.sender = sender
         form.instance.registered_by = self.request.user
         return super().form_valid(form)
 
