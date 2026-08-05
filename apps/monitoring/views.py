@@ -20,6 +20,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             letters = InboundLetter.objects.filter(assignments__assigned_to=user)
             assignments = Assignment.objects.filter(assigned_to=user)
 
+        context["total_letters"] = letters.count()
         context["total_pending"] = letters.filter(status="REG").count()
         context["in_progress"] = assignments.filter(status="IPR").count()
         context["overdue"] = assignments.filter(

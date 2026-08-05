@@ -5,52 +5,181 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Correspondence System{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-maroon { background-color: #900000; }
+    .bg-maroon-dark { background-color: #750000; }
+    .bg-maroon-band { background-color: #a93a3b; }
+    .bg-steel { background-color: #900000; }
+    .bg-steel-dark { background-color: #750000; }
+    .bg-page { background-color: #f0f4f0; }
+    .text-maroon { color: #900000; }
+    .text-steel { color: #900000; }
+    .border-maroon { border-color: #900000; }
+    .border-steel { border-color: #900000; }
+    .btn-maroon {
+      background-color: #900000;
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: .375rem;
+      font-size: .875rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: background-color .15s;
+    }
+    .btn-maroon:hover { background-color: #750000; }
+    .btn-steel {
+      background-color: #900000;
+      color: #fff;
+      padding: .5rem 1rem;
+      border-radius: .375rem;
+      font-size: .875rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: background-color .15s;
+    }
+    .btn-steel:hover { background-color: #750000; }
+    .panel {
+      background-color: #fff;
+      border-radius: .5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .thead-steel th {
+      background-color: #900000;
+      color: #fff;
+      text-align: left;
+    }
+    .tbl-steel {
+      background-color: #ffffff;
+      color: #374151;
+    }
+    .tbl-steel thead th {
+      background-color: #ffffff;
+      color: #6b7280;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #900000;
+    }
+    .tbl-steel tbody tr {
+      border-top: 1px solid #e5e7eb;
+    }
+    .tbl-steel tbody tr:hover {
+      background-color: #ffffff;
+      color: #374151;
+    }
+    .tbl-steel tbody tr:hover td a {
+      color: #900000;
+    }
+    .tbl-steel td a {
+      color: #900000;
+    }
+    .tbl-steel .muted {
+      color: #9ca3af;
+    }
+    .nav-link {
+      display: block;
+      padding: .5rem .75rem;
+      border-radius: .375rem;
+      color: #4b5563;
+      font-size: .875rem;
+    }
+    .nav-link:hover {
+      background-color: #900000;
+      color: #fff;
+    }
+    .badge-maroon {
+      background-color: #fbe4e4;
+      color: #900000;
+    }
+    .btn-plain {
+      background-color: #ffffff;
+      color: #6b7280;
+      border: 1px solid #d1d5db;
+      padding: .25rem .75rem;
+      border-radius: .375rem;
+      font-size: .8125rem;
+      display: inline-block;
+      transition: background-color .15s, color .15s;
+    }
+    .btn-plain:hover { background-color: #f3f4f6; }
+    .nav-section {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #9ca3af;
+      padding: .75rem .75rem .25rem;
+      font-weight: 600;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-page min-h-screen">
 
-  <nav class="bg-blue-900 text-white px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <span class="font-bold text-lg">Correspondence System</span>
-      <span class="text-blue-200 text-sm">{{ user.get_full_name }} ({{ user.get_role_display }})</span>
+  <header class="bg-maroon text-white">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+          <span class="text-maroon font-bold text-lg">RZ</span>
+        </div>
+        <div>
+          <h1 class="font-bold text-xl leading-tight">Correspondence System</h1>
+          <p class="text-red-200 text-sm">RAEOA / ZEEMS-TL</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-red-100 text-sm">{{ user.get_full_name }} ({{ user.get_role_display }})</span>
+        {% if user.role == 'ADMIN' %}
+        <a href="{% url 'admin:index' %}" class="text-red-200 hover:text-white text-sm">Admin</a>
+        {% endif %}
+        <a href="{% url 'accounts:logout' %}" class="bg-maroon-band hover:bg-maroon-dark text-white px-4 py-2 rounded text-sm font-medium">Logout</a>
+      </div>
     </div>
-    <div class="flex items-center gap-4">
-      {% if user.role == 'ADMIN' %}
-      <a href="{% url 'admin:index' %}" class="text-blue-200 hover:text-white text-sm">Admin</a>
-      {% endif %}
-      <a href="{% url 'accounts:logout' %}" class="text-blue-200 hover:text-white text-sm">Logout</a>
-    </div>
-  </nav>
+  </header>
 
   <div class="flex">
-    <aside class="w-56 bg-white shadow min-h-[calc(100vh-64px)] p-4">
-      <ul class="space-y-2">
-        <li><a href="{% url 'monitoring:dashboard' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Dashboard</a></li>
-        {% if user.role == 'ADMIN' %}
-        <li><a href="{% url 'accounts:user_list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Users</a></li>
-        {% endif %}
+    <aside class="w-56 bg-white shadow shrink-0 min-h-[calc(100vh-88px)] p-4">
+      <p class="nav-section">Main</p>
+      <ul class="space-y-1">
+        <li><a href="{% url 'monitoring:dashboard' %}" class="nav-link">Dashboard</a></li>
+      </ul>
+      <p class="nav-section">Inbound Letters</p>
+      <ul class="space-y-1">
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'inbound_letters:create' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Register Letter</a></li>
+        <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Register Letter</a></li>
         {% endif %}
         {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'inbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">All Inbound Letters</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">All Inbound Letters</a></li>
         {% endif %}
         {% if user.role == 'STF' %}
-        <li><a href="{% url 'inbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Tasks</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">My Tasks</a></li>
         {% endif %}
-        <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Senders</a></li>
+        <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="nav-link">Senders</a></li>
+      </ul>
+      <p class="nav-section">Outbound Letters</p>
+      <ul class="space-y-1">
         {% if user.role == 'SEK' or user.role == 'STF' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">My Drafts</a></li>
+        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">My Drafts</a></li>
         {% endif %}
         {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'outbound_letters:list' %}" class="block px-3 py-2 rounded hover:bg-blue-50 text-gray-700">Outbound Approvals</a></li>
+        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">Outbound Approvals</a></li>
         {% endif %}
       </ul>
+      {% if user.role == 'ADMIN' %}
+      <p class="nav-section">Administration</p>
+      <ul class="space-y-1">
+        <li><a href="{% url 'accounts:user_list' %}" class="nav-link">Users</a></li>
+      </ul>
+      {% endif %}
     </aside>
 
     <main class="flex-1 p-6">
       {% block content %}{% endblock %}
     </main>
   </div>
+
+  <footer class="bg-maroon-band text-white mt-8">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 text-center text-sm text-red-100">
+      Sistema Jestaun Karta Tama no Sai · RAEOA / ZEEMS-TL
+    </div>
+  </footer>
 
 </body>
 </html>

@@ -1,10 +1,11 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView
 
 from apps.common.mixins import AdminMixin, SekretariaduMixin
 
-from .models import InboundLetter
+from .models import InboundLetter, Sender
 
 
 class InboundLetterListView(LoginRequiredMixin, ListView):
@@ -32,17 +33,38 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
     success_url = reverse_lazy("inbound_letters:list")
 
     def form_valid(self, form):
+        name = form.cleaned_data["sender_name"].strip()
+        sender, _ = Sender.objects.get_or_create(name=name)
+        form.instance.sender = sender
         form.instance.registered_by = self.request.user
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields["letter_date"].widget.attrs["type"] = "date"
+        form.fields.pop("sender")
+        form.fields["letter_date"].widget = forms.DateInput(
+            attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+        )
+        form.fields["sender_name"] = forms.CharField(
+            max_length=255,
+            label="Sender",
+            widget=forms.TextInput(
+                attrs={
+                    "list": "senders-list",
+                    "placeholder": "Type or select sender name",
+                }
+            ),
+        )
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
-                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
             )
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["senders"] = Sender.objects.order_by("name")
+        return context
 
 
 class InboundLetterDetailView(LoginRequiredMixin, DetailView):
