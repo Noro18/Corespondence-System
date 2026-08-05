@@ -61,6 +61,11 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
             )
         return form
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["senders"] = Sender.objects.order_by("name")
+        return context
+
 
 class InboundLetterDetailView(LoginRequiredMixin, DetailView):
     model = InboundLetter
