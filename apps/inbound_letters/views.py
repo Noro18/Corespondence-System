@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView
@@ -37,7 +38,9 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields["letter_date"].widget.attrs["type"] = "date"
+        form.fields["letter_date"].widget = forms.DateInput(
+            attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+        )
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
