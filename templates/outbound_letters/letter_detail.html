@@ -91,8 +91,21 @@
 </div>
 
 {% if letter.pdf_file %}
-<div class="mt-6">
-  <a href="{{ letter.pdf_file.url }}" target="_blank" class="btn-maroon">Download PDF</a>
+<div class="mt-6 bg-white rounded-lg shadow p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-semibold text-gray-700">PDF Document Preview</h2>
+    <a href="{{ letter.pdf_file.url }}" target="_blank" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm inline-block">Download PDF</a>
+  </div>
+  <div class="w-full h-[600px] border border-gray-200 rounded overflow-hidden bg-gray-50 relative">
+    <object data="{{ letter.pdf_file.url }}" type="application/pdf" class="w-full h-full">
+      <iframe src="{{ letter.pdf_file.url }}" class="w-full h-full">
+        <div class="p-6 text-center">
+          <p class="text-sm text-gray-600 mb-2">Unable to display PDF inline in this browser.</p>
+          <a href="{{ letter.pdf_file.url }}" target="_blank" class="text-blue-600 underline font-medium">Click here to open the PDF in a new tab</a>
+        </div>
+      </iframe>
+    </object>
+  </div>
 </div>
 {% endif %}
 
