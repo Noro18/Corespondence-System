@@ -74,7 +74,9 @@ class OutboundLetterDetailView(LoginRequiredMixin, DetailView):
         context["can_review"] = self.request.user.role in [
             self.request.user.Role.ADMIN, self.request.user.Role.PREZIDENTE
         ]
-        context["can_dispatch"] = self.request.user.role == self.request.user.Role.ADMIN
+        context["can_dispatch"] = self.request.user.role in [
+            self.request.user.Role.ADMIN, self.request.user.Role.PREZIDENTE
+        ]
         return context
 
 
@@ -116,7 +118,7 @@ class OutboundLetterReviewView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
         )
 
 
-class OutboundLetterDispatchView(AdminMixin, LoginRequiredMixin, UpdateView):
+class OutboundLetterDispatchView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
     model = OutboundLetter
     fields = []
 
