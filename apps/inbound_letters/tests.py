@@ -4,6 +4,7 @@ from apps.accounts.models import CustomUser
 from apps.inbound_letters.models import Sender, InboundLetter
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+
 class InboundLetterTestCase(TestCase):
     def setUp(self):
         self.client = Client()
@@ -37,11 +38,11 @@ class InboundLetterTestCase(TestCase):
             pdf_file=self.pdf_file,
             registered_by=self.user
         )
-        response_list = self.client.get(reverse("inbound_list"))
+        response_list = self.client.get(reverse("inbound_letters:list"))
         self.assertEqual(response_list.status_code, 200)
         self.assertContains(response_list, letter.tracking_code)
 
-        response_detail = self.client.get(reverse("inbound_detail", args=[letter.pk]))
+        response_detail = self.client.get(reverse("inbound_letters:detail", args=[letter.pk]))
         self.assertEqual(response_detail.status_code, 200)
         self.assertContains(response_detail, letter.tracking_code)
         self.assertContains(response_detail, "<iframe")
