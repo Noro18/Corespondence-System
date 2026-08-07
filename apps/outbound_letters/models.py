@@ -37,6 +37,7 @@ class OutboundLetter(models.Model):
         ordering = ["-created_at"]
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         if not self.tracking_code:
             today = datetime.date.today()
             prefix = f"OUT-{today.strftime('%Y%m%d')}"
@@ -47,10 +48,15 @@ class OutboundLetter(models.Model):
             )
             next_num = 1
             if last:
-                next_num = int(last.tracking_code.split("-")[-1]) + 1
+                try:
+                    next_num = int(last.tracking_code.split("-")[-1]) + 1
+                except (ValueError, IndexError):
+                    pass
             self.tracking_code = f"{prefix}-{next_num:04d}"
+        
         super().save(*args, **kwargs)
-        if self.pdf_file and not self.thumbnail:
+
+        if is_new and self.pdf_file and not self.thumbnail:
             try:
                 import fitz
                 import os
