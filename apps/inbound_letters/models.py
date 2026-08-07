@@ -82,6 +82,17 @@ class InboundLetter(models.Model):
             except Exception:
                 pass
 
+    def sync_status(self):
+        assignments = self.assignments.all()
+        if assignments.exists() and all(
+            a.status == Assignment.Status.COMPLETED for a in assignments
+        ):
+            self.status = self.Status.COMPLETED
+            self.save(update_fields=["status"])
+        elif self.status == self.Status.REGISTERED:
+            self.status = self.Status.ASSIGNED
+            self.save(update_fields=["status"])
+
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
 
