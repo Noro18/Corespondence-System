@@ -69,18 +69,20 @@ class InboundLetter(models.Model):
                 from django.core.files.base import ContentFile
                 import io
 
-                # Open PDF from storage or file path
+                # Ensure stream pointer is at the beginning
+                if hasattr(self.pdf_file, 'seek'):
+                    self.pdf_file.seek(0)
+
                 doc = fitz.open(stream=self.pdf_file.read(), filetype="pdf")
                 if len(doc) > 0:
                     page = doc[0]
-                    pix = page.get_pixmap(matrix=fitz.Matrix(0.5, 0.5)) # scale down for thumbnail
+                    pix = page.get_pixmap(matrix=fitz.Matrix(0.5, 0.5))
                     thumb_io = io.BytesIO(pix.tobytes("png"))
                     thumb_name = f"thumb_{self.pk}_{os.path.basename(self.pdf_file.name)}.png"
                     self.thumbnail.save(thumb_name, ContentFile(thumb_io.getvalue()), save=False)
                     super().save(update_fields=['thumbnail'])
                 doc.close()
             except Exception:
-                # Fallback to placeholder if PDF rendering fails
                 try:
                     from PIL import Image, ImageDraw
                     import os

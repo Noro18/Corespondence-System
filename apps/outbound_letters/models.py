@@ -57,6 +57,9 @@ class OutboundLetter(models.Model):
                 from django.core.files.base import ContentFile
                 import io
 
+                if hasattr(self.pdf_file, 'seek'):
+                    self.pdf_file.seek(0)
+
                 doc = fitz.open(stream=self.pdf_file.read(), filetype="pdf")
                 if len(doc) > 0:
                     page = doc[0]
