@@ -55,7 +55,7 @@ class InboundLetter(models.Model):
             prefix = f"LTR-{today.strftime('%Y%m%d')}"
             last = (
                 InboundLetter.objects.filter(tracking_code__startswith=prefix)
-                .order_by("id")
+                .order_by("tracking_code")
                 .last()
             )
             next_num = 1

@@ -43,7 +43,7 @@ class OutboundLetter(models.Model):
             prefix = f"OUT-{today.strftime('%Y%m%d')}"
             last = (
                 OutboundLetter.objects.filter(tracking_code__startswith=prefix)
-                .order_by("id")
+                .order_by("tracking_code")
                 .last()
             )
             next_num = 1
