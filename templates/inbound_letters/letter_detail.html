@@ -7,6 +7,9 @@
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-bold text-gray-800">{{ letter.tracking_code }}</h1>
   <div class="flex gap-2">
+    {% if user.role == 'ADMIN' or user.role == 'PREZ' %}
+    <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
+    {% endif %}
     {% if user.role == 'ADMIN' %}
     <a href="{% url 'inbound_letters:delete' letter.pk %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Delete</a>
     {% endif %}
@@ -68,6 +71,9 @@
         <p class="text-sm text-gray-600 mt-1">{{ assignment.completion_report|truncatechars:100 }}</p>
         {% endif %}
         <p class="text-xs text-gray-400 mt-1">Due: {{ assignment.due_date|date:"d/m/Y" }}</p>
+        {% if user.role == 'ADMIN' or assignment.assigned_to == user %}
+        <a href="{% url 'inbound_letters:assignment_update' assignment.pk %}" class="text-blue-600 text-xs underline mt-1 inline-block">Update Progress</a>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
