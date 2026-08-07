@@ -69,11 +69,11 @@ class InboundLetter(models.Model):
                 from django.core.files.base import ContentFile
                 import io
 
-                # Ensure stream pointer is at the beginning
                 if hasattr(self.pdf_file, 'seek'):
                     self.pdf_file.seek(0)
 
-                doc = fitz.open(stream=self.pdf_file.read(), filetype="pdf")
+                pdf_bytes = self.pdf_file.read()
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
                 if len(doc) > 0:
                     page = doc[0]
                     pix = page.get_pixmap(matrix=fitz.Matrix(0.5, 0.5))
