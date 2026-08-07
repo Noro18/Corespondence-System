@@ -111,6 +111,9 @@ class InboundLetter(models.Model):
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
 
+    def __str__(self):
+        return f"{self.tracking_code} - {self.title}"
+
 
 class Assignment(models.Model):
     class Status(models.TextChoices):

@@ -99,6 +99,9 @@ class OutboundLetter(models.Model):
     def __str__(self):
         return f"{self.tracking_code} - {self.subject}"
 
+    def __str__(self):
+        return f"{self.tracking_code} - {self.subject}"
+
 
 class ApprovalStage(models.Model):
     class Stage(models.TextChoices):
