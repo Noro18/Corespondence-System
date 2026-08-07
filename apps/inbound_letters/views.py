@@ -1,11 +1,14 @@
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, ListView
+from django.http import HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
-from apps.common.mixins import AdminMixin, SekretariaduMixin
+from apps.accounts.models import CustomUser
+from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffMixin
 
-from .models import InboundLetter, Sender
+from .models import Assignment, InboundLetter, Sender
 
 
 class InboundLetterListView(LoginRequiredMixin, ListView):
@@ -84,3 +87,70 @@ class InboundLetterDeleteView(AdminMixin, LoginRequiredMixin, DeleteView):
     model = InboundLetter
     template_name = "inbound_letters/letter_confirm_delete.html"
     success_url = reverse_lazy("inbound_letters:list")
+
+
+class AssignmentCreateView(PrezidenteMixin, LoginRequiredMixin, CreateView):
+    model = Assignment
+    template_name = "inbound_letters/assignment_form.html"
+    fields = ["assigned_to", "instructions", "due_date"]
+    context_object_name = "assignment"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["letter"] = InboundLetter.objects.get(pk=self.kwargs["letter_pk"])
+        return context
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["assigned_to"].queryset = CustomUser.objects.filter(
+            role=CustomUser.Role.STAFF
+        ).order_by("username")
+        form.fields["due_date"].widget = forms.DateInput(attrs={"type": "date"})
+        for field in form.fields.values():
+            field.widget.attrs.setdefault("class",
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
+            )
+        return form
+
+    def form_valid(self, form):
+        letter = InboundLetter.objects.get(pk=self.kwargs["letter_pk"])
+        form.instance.letter = letter
+        form.instance.assigned_by = self.request.user
+        response = super().form_valid(form)
+        letter.sync_status()
+        return response
+
+    def get_success_url(self):
+        return reverse("inbound_letters:detail", kwargs={"pk": self.kwargs["letter_pk"]})
+
+
+class AssignmentUpdateView(StaffMixin, LoginRequiredMixin, UpdateView):
+    model = Assignment
+    template_name = "inbound_letters/assignment_update.html"
+    fields = ["status", "completion_report"]
+    context_object_name = "assignment"
+
+    def get_queryset(self):
+        qs = Assignment.objects.select_related("letter", "assigned_to")
+        if self.request.user.role == CustomUser.Role.ADMIN:
+            return qs
+        return qs.filter(assigned_to=self.request.user)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        for field in form.fields.values():
+            field.widget.attrs.setdefault("class",
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
+            )
+        return form
+
+    def form_valid(self, form):
+        self.object = form.save()
+        if self.object.status == Assignment.Status.COMPLETED:
+            self.object.completed_at = timezone.now()
+            self.object.save(update_fields=["completed_at"])
+        self.object.letter.sync_status()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("inbound_letters:detail", kwargs={"pk": self.object.letter.pk})
