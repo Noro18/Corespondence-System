@@ -62,13 +62,6 @@ class InboundLetter(models.Model):
                 next_num = int(last.tracking_code.split("-")[-1]) + 1
             self.tracking_code = f"{prefix}-{next_num:04d}"
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.tracking_code} - {self.title}"
-
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
         if self.pdf_file and not self.thumbnail:
             try:
                 from PIL import Image, ImageDraw
@@ -88,6 +81,9 @@ class InboundLetter(models.Model):
                 super().save(update_fields=['thumbnail'])
             except Exception:
                 pass
+
+    def __str__(self):
+        return f"{self.tracking_code} - {self.title}"
 
 
 class Assignment(models.Model):

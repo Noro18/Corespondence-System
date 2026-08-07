@@ -151,7 +151,6 @@
         {% if user.role == 'STF' %}
         <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">My Tasks</a></li>
         {% endif %}
-        <li><a href="{% url 'admin:inbound_letters_sender_changelist' %}" class="nav-link">Senders</a></li>
       </ul>
       <p class="nav-section">Outbound Letters</p>
       <ul class="space-y-1">
