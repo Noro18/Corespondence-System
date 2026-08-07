@@ -21,6 +21,7 @@ mypy_extensions==1.1.0
 packaging==26.2
 pathspec==1.1.1
 pillow==12.3.0
+pymupdf==1.28.0
 platformdirs==4.10.1
 prompt_toolkit==3.0.52
 pycparser==3.0
