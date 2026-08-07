@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Update Progress - {{ assignment.letter.tracking_code }} - Correspondence System{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">Update Progress</h1>
+
+  <div class="panel p-6 mb-6">
+    <h2 class="font-semibold text-gray-700 mb-3">Assignment</h2>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Letter</dt>
+        <dd class="text-gray-800 font-medium">{{ assignment.letter.tracking_code }} - {{ assignment.letter.title }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Assigned To</dt>
+        <dd class="text-gray-800">{{ assignment.assigned_to.get_full_name|default:assignment.assigned_to.username }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Due Date</dt>
+        <dd class="text-gray-800">{{ assignment.due_date|date:"d/m/Y" }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Instructions</dt>
+        <dd class="text-gray-800">{{ assignment.instructions }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="panel p-6">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
+        {{ form.non_field_errors }}
+      </div>
+      {% endif %}
+
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+        {% endif %}
+        {% if field.help_text %}
+        <p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="flex items-center gap-4 pt-4">
+        <button type="submit" class="btn-maroon">Save</button>
+        <a href="{% url 'inbound_letters:detail' assignment.letter.pk %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
