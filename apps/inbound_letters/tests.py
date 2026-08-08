@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from apps.accounts.models import CustomUser
+from apps.common.choices import LetterCategory
 from apps.inbound_letters.models import Assignment, Sender, InboundLetter
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -164,4 +165,167 @@ class AssignmentWorkflowTestCase(TestCase):
         })
         self.letter.refresh_from_db()
         self.assertEqual(self.letter.status, InboundLetter.Status.ASSIGNED)
+
+
+class CategoryTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.sender = Sender.objects.create(name="Test Sender")
+        self.sek = CustomUser.objects.create_user(
+            username="sek", password="password123", role=CustomUser.Role.SEKRETARIADU
+        )
+        self.prez = CustomUser.objects.create_user(
+            username="prez", password="password123", role=CustomUser.Role.PREZIDENTE
+        )
+        self.letter = InboundLetter.objects.create(
+            tracking_code="IN-CAT001",
+            title="Action Letter",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+            category=LetterCategory.ASSUNTO,
+        )
+        self.client.login(username="sek", password="password123")
+
+    def test_create_form_includes_category(self):
+        response = self.client.get(reverse("inbound_letters:create"))
+        self.assertContains(response, 'name="category"')
+
+    def test_default_category_is_assunto(self):
+        letter = InboundLetter.objects.create(
+            tracking_code="IN-CAT002",
+            title="No Category Given",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+        )
+        self.assertEqual(letter.category, LetterCategory.ASSUNTO)
+
+    def test_list_filter_by_category(self):
+        InboundLetter.objects.create(
+            tracking_code="IN-CAT003",
+            title="Invitation Letter",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+            category=LetterCategory.CONVITE,
+        )
+        response = self.client.get(reverse("inbound_letters:list"), {"category": LetterCategory.CONVITE})
+        self.assertContains(response, "IN-CAT003")
+        self.assertNotContains(response, "IN-CAT001")
+
+    def test_detail_shows_category_badge(self):
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertContains(response, self.letter.get_category_display())
+
+    def test_despaxu_still_allowed_for_informational_letter(self):
+        self.letter.category = LetterCategory.INFORMACAO
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:assign", args=[self.letter.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_despaxu_allowed_for_all_categories(self):
+        self.letter.category = LetterCategory.CONVITE
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:assign", args=[self.letter.pk]))
+        self.assertEqual(response.status_code, 200)
+
+
+class ArchiveTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.sender = Sender.objects.create(name="Test Sender")
+        self.sek = CustomUser.objects.create_user(
+            username="sek", password="password123", role=CustomUser.Role.SEKRETARIADU
+        )
+        self.prez = CustomUser.objects.create_user(
+            username="prez", password="password123", role=CustomUser.Role.PREZIDENTE
+        )
+        self.admin = CustomUser.objects.create_user(
+            username="admin", password="password123", role=CustomUser.Role.ADMIN
+        )
+        self.staff = CustomUser.objects.create_user(
+            username="staff", password="password123", role=CustomUser.Role.STAFF
+        )
+        self.letter = InboundLetter.objects.create(
+            tracking_code="IN-ARC001",
+            title="Invitation",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+            category=LetterCategory.CONVITE,
+        )
+
+    def archive_url(self):
+        return reverse("inbound_letters:archive", args=[self.letter.pk])
+
+    def test_prez_archives_informational_letter(self):
+        self.client.login(username="prez", password="password123")
+        response = self.client.post(self.archive_url())
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.ARCHIVED)
+
+    def test_admin_archives_completed_assunto_letter(self):
+        self.letter.category = LetterCategory.ASSUNTO
+        self.letter.status = InboundLetter.Status.COMPLETED
+        self.letter.save()
+        self.client.login(username="admin", password="password123")
+        response = self.client.post(self.archive_url())
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.ARCHIVED)
+
+    def test_sekretariadu_cannot_archive(self):
+        self.client.login(username="sek", password="password123")
+        response = self.client.post(self.archive_url())
+        self.assertNotEqual(response.status_code, 200)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.REGISTERED)
+
+    def test_konvite_detail_has_archive_not_despaxu(self):
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertContains(response, "Archive")
+        self.assertNotContains(response, "Despaxu")
+
+    def test_assunto_registered_detail_has_despaxu_not_archive(self):
+        self.letter.category = LetterCategory.ASSUNTO
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertContains(response, "Despaxu")
+        self.assertNotContains(response, "Archive")
+
+    def test_assunto_completed_detail_has_archive(self):
+        self.letter.category = LetterCategory.ASSUNTO
+        self.letter.status = InboundLetter.Status.COMPLETED
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertContains(response, "Archive")
+        self.assertNotContains(response, "Despaxu")
+
+    def test_archived_letter_has_no_archive_or_despaxu_button(self):
+        self.letter.status = InboundLetter.Status.ARCHIVED
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertNotContains(response, ">Archive</button>")
+        self.assertNotContains(response, ">Despaxu</a>")
+
+    def test_staff_has_no_archive_button(self):
+        Assignment.objects.create(
+            letter=self.letter,
+            assigned_by=self.prez,
+            assigned_to=self.staff,
+            instructions="Handle this",
+            due_date="2026-08-15",
+        )
+        self.client.login(username="staff", password="password123")
+        response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, ">Archive</button>")
 
