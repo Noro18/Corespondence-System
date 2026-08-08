@@ -9,6 +9,7 @@ urlpatterns = [
     path("create/", views.InboundLetterCreateView.as_view(), name="create"),
     path("letters/<int:letter_pk>/assign/", views.AssignmentCreateView.as_view(), name="assign"),
     path("assignments/<int:pk>/update/", views.AssignmentUpdateView.as_view(), name="assignment_update"),
+    path("<int:pk>/archive/", views.InboundLetterArchiveView.as_view(), name="archive"),
     path("<int:pk>/", views.InboundLetterDetailView.as_view(), name="detail"),
     path("<int:pk>/delete/", views.InboundLetterDeleteView.as_view(), name="delete"),
 ]
