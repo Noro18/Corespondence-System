@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from apps.common.choices import LetterCategory
 from apps.inbound_letters.models import Assignment, InboundLetter
 
 
@@ -33,5 +34,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["overdue_assignments"] = assignments.filter(
             status__in=["PND", "IPR"], due_date__lt=today
         ).select_related("letter", "assigned_to")[:10]
+        context["category_counts"] = {
+            category: letters.filter(category=category).count()
+            for category, _ in LetterCategory.choices
+        }
 
         return context
