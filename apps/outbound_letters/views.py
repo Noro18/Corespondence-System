@@ -11,6 +11,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin
 
 from .models import ApprovalStage, OutboundLetter
@@ -22,12 +23,20 @@ class OutboundLetterListView(LoginRequiredMixin, ListView):
     context_object_name = "letters"
     paginate_by = 25
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = LetterCategory.choices
+        return context
+
     def get_queryset(self):
         qs = OutboundLetter.objects.select_related("created_by")
         user = self.request.user
-        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE]:
-            return qs
-        return qs.filter(created_by=user)
+        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE]:
+            qs = qs.filter(created_by=user)
+        category = self.request.GET.get("category")
+        if category:
+            qs = qs.filter(category=category)
+        return qs
 
 
 class OutboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):
@@ -36,7 +45,7 @@ class OutboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView
     fields = [
         "subject", "recipient_name", "recipient_institution",
         "recipient_address", "original_ref_no", "letter_date",
-        "pdf_file", "notes",
+        "pdf_file", "notes", "category",
     ]
     extra_context = {"title": "Create Outbound Letter"}
     success_url = reverse_lazy("outbound_letters:list")
