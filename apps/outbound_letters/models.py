@@ -3,6 +3,8 @@ import datetime
 from django.conf import settings
 from django.db import models
 
+from apps.common.choices import LetterCategory
+
 
 class OutboundLetter(models.Model):
     class Status(models.TextChoices):
@@ -28,6 +30,10 @@ class OutboundLetter(models.Model):
     )
     status = models.CharField(
         max_length=3, choices=Status.choices, default=Status.DRAFT, db_index=True
+    )
+    category = models.CharField(
+        max_length=3, choices=LetterCategory.choices,
+        default=LetterCategory.ASSUNTO, db_index=True
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -5,7 +5,9 @@
 {% block content %}
 
 <div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-bold text-gray-800">{{ letter.tracking_code }}</h1>
+  <h1 class="text-2xl font-bold text-gray-800">{{ letter.tracking_code }}
+    <span class="{% if letter.category == 'ASU' %}badge-maroon{% elif letter.category == 'INF' %}bg-gray-100 text-gray-700{% else %}bg-yellow-100 text-yellow-700{% endif %} px-2 py-1 rounded text-xs align-middle ml-2">{{ letter.get_category_display }}</span>
+  </h1>
   <div class="flex gap-2">
     {% if can_review and letter.status == 'DRF' %}
     <a href="{% url 'outbound_letters:review' letter.pk 'REV' %}" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 text-sm">Review</a>

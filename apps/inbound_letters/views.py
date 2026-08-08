@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from apps.accounts.models import CustomUser
+from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffMixin
 
 from .models import Assignment, InboundLetter, Sender
@@ -17,12 +18,20 @@ class InboundLetterListView(LoginRequiredMixin, ListView):
     context_object_name = "letters"
     paginate_by = 25
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = LetterCategory.choices
+        return context
+
     def get_queryset(self):
         qs = InboundLetter.objects.select_related("sender", "registered_by")
         user = self.request.user
-        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
-            return qs
-        return qs.filter(assignments__assigned_to=user)
+        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            qs = qs.filter(assignments__assigned_to=user)
+        category = self.request.GET.get("category")
+        if category:
+            qs = qs.filter(category=category)
+        return qs
 
 
 class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):
@@ -30,7 +39,7 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
     template_name = "inbound_letters/letter_form.html"
     fields = [
         "title", "original_ref_no", "sender", "letter_date",
-        "pdf_file", "description", "notes",
+        "pdf_file", "description", "notes", "category",
     ]
     extra_context = {"title": "Register Inbound Letter"}
     success_url = reverse_lazy("inbound_letters:list")
@@ -154,3 +163,16 @@ class AssignmentUpdateView(StaffMixin, LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("inbound_letters:detail", kwargs={"pk": self.object.letter.pk})
+
+
+class InboundLetterArchiveView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
+    model = InboundLetter
+    fields = []
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.status = InboundLetter.Status.ARCHIVED
+        self.object.save(update_fields=["status"])
+        return HttpResponseRedirect(
+            reverse("inbound_letters:detail", kwargs={"pk": self.object.pk})
+        )
