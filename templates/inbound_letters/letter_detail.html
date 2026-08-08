@@ -10,7 +10,7 @@
   </h1>
   <div class="flex gap-2">
     {% if letter.status != 'ARC' and user.role == 'ADMIN' or letter.status != 'ARC' and user.role == 'PREZ' %}
-      {% if letter.category == 'ASU' and letter.status != 'CMP' %}
+      {% if letter.category == 'ASU' and letter.status == 'REG' %}
       <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
       {% endif %}
       {% if letter.category != 'ASU' or letter.status == 'CMP' %}
