@@ -26,6 +26,24 @@
 
 </div>
 
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="panel p-6 border-l-4 badge-maroon">
+    <p class="text-sm text-gray-500 uppercase">Asuntu</p>
+    <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.ASU }}</p>
+    <p class="text-xs text-gray-400 mt-1">Letters needing action</p>
+  </div>
+  <div class="panel p-6 border-l-4 bg-gray-100">
+    <p class="text-sm text-gray-500 uppercase">Informasaun</p>
+    <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.INF }}</p>
+    <p class="text-xs text-gray-400 mt-1">Informational only</p>
+  </div>
+  <div class="panel p-6 border-l-4 bg-yellow-100">
+    <p class="text-sm text-gray-500 uppercase">Konvite</p>
+    <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.KVT }}</p>
+    <p class="text-xs text-gray-400 mt-1">Invitations</p>
+  </div>
+</div>
+
 {% if overdue_assignments %}
 <div class="panel mb-8 overflow-hidden">
   <div class="px-6 py-4 bg-maroon-band">

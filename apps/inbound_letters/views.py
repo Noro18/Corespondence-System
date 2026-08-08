@@ -163,3 +163,16 @@ class AssignmentUpdateView(StaffMixin, LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("inbound_letters:detail", kwargs={"pk": self.object.letter.pk})
+
+
+class InboundLetterArchiveView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
+    model = InboundLetter
+    fields = []
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.status = InboundLetter.Status.ARCHIVED
+        self.object.save(update_fields=["status"])
+        return HttpResponseRedirect(
+            reverse("inbound_letters:detail", kwargs={"pk": self.object.pk})
+        )
