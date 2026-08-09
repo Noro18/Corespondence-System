@@ -44,6 +44,41 @@
   </div>
 </div>
 
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+  <!-- Inbound Letters by Status -->
+  <div class="panel p-6">
+    <h2 class="font-semibold text-gray-800 mb-4">Inbound Letters by Status</h2>
+    <div class="relative h-64">
+      <canvas id="inboundStatusChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Outbound Letters by Status -->
+  <div class="panel p-6">
+    <h2 class="font-semibold text-gray-800 mb-4">Outbound Letters by Status</h2>
+    <div class="relative h-64">
+      <canvas id="outboundStatusChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Letters Received (Last 6 Months) -->
+  <div class="panel p-6">
+    <h2 class="font-semibold text-gray-800 mb-4">Letters Received (Last 6 Months)</h2>
+    <div class="relative h-64">
+      <canvas id="monthlyLettersChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tasks Overview -->
+  <div class="panel p-6">
+    <h2 class="font-semibold text-gray-800 mb-4">Tasks Overview</h2>
+    <div class="relative h-64">
+      <canvas id="tasksOverviewChart"></canvas>
+    </div>
+  </div>
+</div>
+
 {% if overdue_assignments %}
 <div class="panel mb-8 overflow-hidden">
   <div class="px-6 py-4 bg-maroon-band">
@@ -167,5 +202,93 @@
   </div>
 
 </div>
+
+<!-- Include Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const maroonPrimary = '#900000';
+  const maroonBand = '#a93a3b';
+  const grayLight = '#e5e7eb';
+  const palette = ['#900000', '#a93a3b', '#d97706', '#059669', '#2563eb', '#7c3aed'];
+
+  // 1. Inbound Status Chart (Doughnut)
+  const inboundCtx = document.getElementById('inboundStatusChart').getContext('2d');
+  new Chart(inboundCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ chart_inbound_labels|safe }},
+      datasets: [{
+        data: {{ chart_inbound_values|safe }},
+        backgroundColor: palette.slice(0, {{ chart_inbound_labels|length }})
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // 2. Outbound Status Chart (Bar)
+  const outboundCtx = document.getElementById('outboundStatusChart').getContext('2d');
+  new Chart(outboundCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_outbound_labels|safe }},
+      datasets: [{
+        label: 'Outbound Letters',
+        data: {{ chart_outbound_values|safe }},
+        backgroundColor: maroonPrimary
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  // 3. Monthly Letters Chart (Line)
+  const monthlyCtx = document.getElementById('monthlyLettersChart').getContext('2d');
+  new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_monthly_labels|safe }},
+      datasets: [{
+        label: 'Inbound Letters',
+        data: {{ chart_monthly_values|safe }},
+        borderColor: maroonPrimary,
+        backgroundColor: 'rgba(144, 0, 0, 0.1)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  // 4. Tasks Overview Chart (Pie)
+  const tasksCtx = document.getElementById('tasksOverviewChart').getContext('2d');
+  new Chart(tasksCtx, {
+    type: 'pie',
+    data: {
+      labels: {{ chart_tasks_labels|safe }},
+      datasets: [{
+        data: {{ chart_tasks_values|safe }},
+        backgroundColor: ['#d97706', '#900000', '#059669', '#2563eb']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+</script>
 
 {% endblock %}
