@@ -6,9 +6,12 @@
 
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-bold text-gray-800">Inbound Letters</h1>
-  {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-  <a href="{% url 'inbound_letters:create' %}" class="btn-maroon">+ Register Letter</a>
-  {% endif %}
+  <div class="flex items-center gap-2">
+    <a href="{% url 'inbound_letters:export' %}{% if request.GET.category %}?category={{ request.GET.category }}{% endif %}" class="btn-steel">Export CSV</a>
+    {% if user.role == 'SEK' or user.role == 'ADMIN' %}
+    <a href="{% url 'inbound_letters:create' %}" class="btn-maroon">+ Register Letter</a>
+    {% endif %}
+  </div>
 </div>
 
 <form method="get" class="mb-4 flex items-center gap-2">

@@ -4,6 +4,15 @@
 
 {% block content %}
 
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Dashboard & Monitoring</h1>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'monitoring:export' %}?type=pending" class="btn-steel text-xs px-3 py-2">Export Pending CSV</a>
+    <a href="{% url 'monitoring:export' %}?type=in_progress" class="btn-steel text-xs px-3 py-2">Export In-Progress CSV</a>
+    <a href="{% url 'monitoring:export' %}?type=overdue" class="btn-steel text-xs px-3 py-2">Export Overdue CSV</a>
+  </div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
   <div class="panel p-6 border-l-4 border-yellow-400">
