@@ -6,6 +6,7 @@ app_name = "inbound_letters"
 
 urlpatterns = [
     path("", views.InboundLetterListView.as_view(), name="list"),
+    path("export/", views.InboundLetterExportCSVView.as_view(), name="export"),
     path("create/", views.InboundLetterCreateView.as_view(), name="create"),
     path("letters/<int:letter_pk>/assign/", views.AssignmentCreateView.as_view(), name="assign"),
     path("assignments/<int:pk>/update/", views.AssignmentUpdateView.as_view(), name="assignment_update"),

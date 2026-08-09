@@ -13,6 +13,7 @@ from django.views.generic import (
 
 from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin
+from apps.common.utils import export_csv_response
 
 from .models import ApprovalStage, OutboundLetter
 
@@ -37,6 +38,41 @@ class OutboundLetterListView(LoginRequiredMixin, ListView):
         if category:
             qs = qs.filter(category=category)
         return qs
+
+
+class OutboundLetterExportCSVView(LoginRequiredMixin, ListView):
+    model = OutboundLetter
+
+    def get_queryset(self):
+        qs = OutboundLetter.objects.select_related("created_by")
+        user = self.request.user
+        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE]:
+            qs = qs.filter(created_by=user)
+        category = self.request.GET.get("category")
+        if category:
+            qs = qs.filter(category=category)
+        return qs
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        headers = [
+            "Tracking Code", "Original Ref No", "Subject", "Recipient Institution",
+            "Recipient Name", "Category", "Letter Date", "Created By", "Status"
+        ]
+        rows = []
+        for l in queryset:
+            rows.append([
+                l.tracking_code,
+                l.original_ref_no,
+                l.subject,
+                l.recipient_institution,
+                l.recipient_name,
+                l.get_category_display(),
+                l.letter_date,
+                l.created_by.get_full_name() if l.created_by else "",
+                l.get_status_display(),
+            ])
+        return export_csv_response("outbound_letters.csv", headers, rows)
 
 
 class OutboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):

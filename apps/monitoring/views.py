@@ -5,6 +5,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth
 
 from apps.common.choices import LetterCategory
+from apps.common.utils import export_csv_response
 from apps.inbound_letters.models import Assignment, InboundLetter
 from apps.outbound_letters.models import OutboundLetter
 
@@ -97,3 +98,71 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["chart_tasks_values"] = [task_status_data[code] for code in task_status_map.keys()]
 
         return context
+
+
+class DashboardExportCSVView(LoginRequiredMixin, TemplateView):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        today = timezone.now().date()
+
+        report_type = request.GET.get("type", "overdue")
+
+        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            inbound_letters = InboundLetter.objects.all()
+            assignments = Assignment.objects.select_related("letter", "assigned_to").all()
+        else:
+            inbound_letters = InboundLetter.objects.filter(assignments__assigned_to=user).distinct()
+            assignments = Assignment.objects.select_related("letter", "assigned_to").filter(assigned_to=user)
+
+        if report_type == "pending":
+            # Dashboard counts pending letters as InboundLetters with status 'REG' (Registered / Pending processing)
+            queryset = inbound_letters.filter(status="REG").select_related("sender", "registered_by")
+            headers = ["Tracking Code", "Original Ref No", "Title", "Sender", "Category", "Letter Date", "Status"]
+            rows = []
+            for l in queryset:
+                rows.append([
+                    l.tracking_code,
+                    l.original_ref_no,
+                    l.title,
+                    l.sender.name if l.sender else "",
+                    l.get_category_display(),
+                    l.letter_date,
+                    l.get_status_display(),
+                ])
+            filename = "pending_letters_report.csv"
+        elif report_type == "in_progress":
+            # Dashboard counts in-progress as active Assignments with status 'IPR'
+            queryset = assignments.filter(status="IPR")
+            headers = ["Letter Code", "Letter Title", "Assigned To", "Instructions", "Due Date", "Status"]
+            rows = []
+            for a in queryset:
+                rows.append([
+                    a.letter.tracking_code if a.letter else "",
+                    a.letter.title if a.letter else "",
+                    a.assigned_to.get_full_name() if a.assigned_to else "",
+                    a.instructions,
+                    a.due_date,
+                    a.get_status_display(),
+                ])
+            filename = "in_progress_assignments_report.csv"
+        elif report_type == "overdue":
+            # Dashboard counts overdue as Assignments past due date
+            queryset = assignments.filter(status__in=["PND", "IPR"], due_date__lt=today)
+            headers = ["Letter Code", "Letter Title", "Assigned To", "Instructions", "Due Date", "Status"]
+            rows = []
+            for a in queryset:
+                rows.append([
+                    a.letter.tracking_code if a.letter else "",
+                    a.letter.title if a.letter else "",
+                    a.assigned_to.get_full_name() if a.assigned_to else "",
+                    a.instructions,
+                    a.due_date,
+                    "Overdue",
+                ])
+            filename = "overdue_assignments_report.csv"
+        else:
+            headers = []
+            rows = []
+            filename = "monitoring_report.csv"
+
+        return export_csv_response(filename, headers, rows)

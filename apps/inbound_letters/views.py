@@ -8,6 +8,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from apps.accounts.models import CustomUser
 from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffMixin
+from apps.common.utils import export_csv_response
 
 from .models import Assignment, InboundLetter, Sender
 
@@ -32,6 +33,41 @@ class InboundLetterListView(LoginRequiredMixin, ListView):
         if category:
             qs = qs.filter(category=category)
         return qs
+
+
+class InboundLetterExportCSVView(LoginRequiredMixin, ListView):
+    model = InboundLetter
+
+    def get_queryset(self):
+        qs = InboundLetter.objects.select_related("sender", "registered_by")
+        user = self.request.user
+        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            qs = qs.filter(assignments__assigned_to=user)
+        category = self.request.GET.get("category")
+        if category:
+            qs = qs.filter(category=category)
+        return qs.distinct()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        headers = [
+            "Tracking Code", "Original Ref No", "Title", "Sender",
+            "Category", "Letter Date", "Received Date", "Registered By", "Status"
+        ]
+        rows = []
+        for l in queryset:
+            rows.append([
+                l.tracking_code,
+                l.original_ref_no,
+                l.title,
+                l.sender.name if l.sender else "",
+                l.get_category_display(),
+                l.letter_date,
+                l.received_date,
+                l.registered_by.get_full_name() if l.registered_by else "",
+                l.get_status_display(),
+            ])
+        return export_csv_response("inbound_letters.csv", headers, rows)
 
 
 class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):

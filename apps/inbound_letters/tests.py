@@ -329,3 +329,36 @@ class ArchiveTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, ">Archive</button>")
 
+    def test_csv_export_rbac(self):
+        # Create a second letter not assigned to staff
+        InboundLetter.objects.create(
+            tracking_code="IN-OTHER01",
+            title="Other Letter",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+        )
+        # Assign self.letter to staff
+        Assignment.objects.create(
+            letter=self.letter,
+            assigned_by=self.prez,
+            assigned_to=self.staff,
+            instructions="Test assignment",
+            due_date="2026-08-15",
+        )
+        # Staff export should only contain their assigned letter (IN-ARC001)
+        self.client.login(username="staff", password="password123")
+        res = self.client.get(reverse("inbound_letters:export"))
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res["Content-Type"], "text/csv; charset=utf-8")
+        self.assertIn(b"IN-ARC001", res.content)
+        self.assertNotIn(b"IN-OTHER01", res.content)
+
+        # Admin export should contain both
+        self.client.login(username="admin", password="password123")
+        res_admin = self.client.get(reverse("inbound_letters:export"))
+        self.assertEqual(res_admin.status_code, 200)
+        self.assertIn(b"IN-ARC001", res_admin.content)
+        self.assertIn(b"IN-OTHER01", res_admin.content)
+
+
