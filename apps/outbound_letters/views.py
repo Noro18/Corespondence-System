@@ -12,7 +12,7 @@ from django.views.generic import (
 )
 
 from apps.common.choices import LetterCategory
-from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin
+from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffOrSekretariaduMixin
 from apps.common.utils import export_csv_response
 
 from .models import ApprovalStage, OutboundLetter
@@ -75,7 +75,7 @@ class OutboundLetterExportCSVView(LoginRequiredMixin, ListView):
         return export_csv_response("outbound_letters.csv", headers, rows)
 
 
-class OutboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):
+class OutboundLetterCreateView(StaffOrSekretariaduMixin, LoginRequiredMixin, CreateView):
     model = OutboundLetter
     template_name = "outbound_letters/letter_form.html"
     fields = [
@@ -89,6 +89,45 @@ class OutboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["letter_date"].widget = forms.DateInput(
+            attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
+        )
+        for field in form.fields.values():
+            field.widget.attrs.setdefault("class",
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
+            )
+        return form
+
+
+class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, UpdateView):
+    model = OutboundLetter
+    template_name = "outbound_letters/letter_form.html"
+    fields = [
+        "subject", "recipient_name", "recipient_institution",
+        "recipient_address", "original_ref_no", "letter_date",
+        "pdf_file", "notes", "category",
+    ]
+    extra_context = {"title": "Edit Rejected Outbound Letter"}
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        # Only allow editing if status is Rejected (REJ)
+        qs = qs.filter(status=OutboundLetter.Status.REJECTED)
+        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE]:
+            qs = qs.filter(created_by=user)
+        return qs
+
+    def form_valid(self, form):
+        # Reset status back to Draft (or keep as Draft so it can be reviewed again)
+        form.instance.status = OutboundLetter.Status.DRAFT
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("outbound_letters:detail", kwargs={"pk": self.object.pk})
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)

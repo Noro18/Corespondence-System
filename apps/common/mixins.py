@@ -28,3 +28,7 @@ class PrezidenteMixin(RoleRequiredMixin):
 
 class StaffMixin(RoleRequiredMixin):
     allowed_roles = [CustomUser.Role.ADMIN, CustomUser.Role.STAFF]
+
+
+class StaffOrSekretariaduMixin(RoleRequiredMixin):
+    allowed_roles = [CustomUser.Role.ADMIN, CustomUser.Role.SEKRETARIADU, CustomUser.Role.STAFF]
