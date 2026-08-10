@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Correspondence System{% endblock %}</title>
+  {% load static %}
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .bg-maroon { background-color: #900000; }
@@ -115,11 +116,10 @@
 
   <header class="bg-maroon text-white">
     <div class="max-w-screen-2xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-          <span class="text-maroon font-bold text-lg">RZ</span>
-        </div>
-        <div>
+        <div class="flex items-center gap-4">
+          <img src="{% static 'images/raoea_logo.png' %}" alt="RAEOA / ZEEMS-TL Logo"
+               class="w-12 h-12 object-contain rounded-full bg-white">
+          <div>
           <h1 class="font-bold text-xl leading-tight">Correspondence System</h1>
           <p class="text-red-200 text-sm">RAEOA / ZEEMS-TL</p>
         </div>
