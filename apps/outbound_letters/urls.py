@@ -9,6 +9,7 @@ urlpatterns = [
     path("export/", views.OutboundLetterExportCSVView.as_view(), name="export"),
     path("create/", views.OutboundLetterCreateView.as_view(), name="create"),
     path("<int:pk>/", views.OutboundLetterDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.OutboundLetterUpdateView.as_view(), name="edit"),
     path("<int:pk>/review/<str:stage>/", views.OutboundLetterReviewView.as_view(), name="review"),
     path("<int:pk>/dispatch/", views.OutboundLetterDispatchView.as_view(), name="dispatch"),
     path("<int:pk>/delete/", views.OutboundLetterDeleteView.as_view(), name="delete"),

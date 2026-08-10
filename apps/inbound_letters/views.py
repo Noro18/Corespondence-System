@@ -51,7 +51,7 @@ class InboundLetterExportCSVView(LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         headers = [
-            "Tracking Code", "Original Ref No", "Title", "Sender",
+            "Tracking Code", "Original Ref No", "Subject", "Sender",
             "Category", "Letter Date", "Received Date", "Registered By", "Status"
         ]
         rows = []
