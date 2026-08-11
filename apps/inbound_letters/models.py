@@ -28,7 +28,7 @@ class InboundLetter(models.Model):
 
     tracking_code = models.CharField(max_length=30, unique=True, editable=False)
     title = models.CharField(max_length=255)
-    original_ref_no = models.CharField(max_length=100, blank=True)
+    original_ref_no = models.CharField(max_length=100)
     sender = models.ForeignKey(Sender, on_delete=models.PROTECT)
     letter_date = models.DateField()
     received_date = models.DateTimeField(auto_now_add=True)
