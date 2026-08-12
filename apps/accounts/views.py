@@ -60,14 +60,14 @@ class ProfileView(LoginRequiredMixin, View):
             if user_form.is_valid():
                 user_form.save()
                 django.contrib.messages.success(request, "Your profile details have been successfully updated.")
-                return HttpResponseRedirect(reverse("accounts:profile"))
+                return HttpResponseRedirect(reverse("monitoring:dashboard"))
         elif action == "change_password":
             password_form = django.contrib.auth.forms.PasswordChangeForm(user=request.user, data=request.POST)
             if password_form.is_valid():
                 password_form.save()
                 django.contrib.auth.update_session_auth_hash(request, password_form.user)
                 django.contrib.messages.success(request, "Your password has been successfully changed.")
-                return HttpResponseRedirect(reverse("accounts:profile"))
+                return HttpResponseRedirect(reverse("monitoring:dashboard"))
 
         return django.shortcuts.render(request, self.template_name, {
             "user_form": user_form,
