@@ -44,6 +44,14 @@ class OutboundLetter(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
+        generate_thumbnail = False
+        if is_new or not self.thumbnail:
+            generate_thumbnail = True
+        elif self.pk:
+            old_instance = OutboundLetter.objects.filter(pk=self.pk).first()
+            if old_instance and old_instance.pdf_file != self.pdf_file:
+                generate_thumbnail = True
+
         if not self.tracking_code:
             today = datetime.date.today()
             prefix = f"OUT-{today.strftime('%Y%m%d')}"
@@ -62,7 +70,7 @@ class OutboundLetter(models.Model):
         
         super().save(*args, **kwargs)
 
-        if is_new and self.pdf_file and not self.thumbnail:
+        if self.pdf_file and generate_thumbnail:
             try:
                 import fitz
                 import os
