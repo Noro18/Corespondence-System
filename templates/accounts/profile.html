@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Correspondence System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
+    <span class="px-3 py-1 bg-red-100 text-maroon text-sm font-semibold rounded-full">
+      {{ user.get_role_display }}
+    </span>
+  </div>
+
+  {% if messages %}
+  <div class="space-y-2">
+    {% for message in messages %}
+    <div class="p-4 rounded text-sm {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-400{% else %}bg-red-100 text-red-700 border border-red-400{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Profile Details Form -->
+    <div class="panel p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile">
+
+        {% for field in user_form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+          {% endif %}
+          {% if field.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="pt-4">
+          <button type="submit" class="btn-maroon">Update Profile</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Password Change Form -->
+    <div class="panel p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Change Password</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="change_password">
+
+        {% if password_form.non_field_errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
+          {{ password_form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        {% for field in password_form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+          {% endif %}
+          {% if field.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="pt-4">
+          <button type="submit" class="btn-maroon">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add styling classes to form widgets dynamically
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.classList.contains('w-full') && el.type !== 'checkbox' && el.type !== 'hidden') {
+      el.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded', 'focus:outline-none', 'focus:ring-2', 'focus:ring-[#900000]');
+    }
+  });
+</script>
+{% endblock %}
