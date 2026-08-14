@@ -56,6 +56,17 @@ class OutboundLetterEditTestCase(TestCase):
         self.assertEqual(self.letter.subject, "Updated Subject")
         self.assertEqual(self.letter.status, OutboundLetter.Status.DRAFT)
 
+    def test_edit_without_new_pdf_keeps_existing_file(self):
+        data = self.post_data()
+        data.pop("pdf_file")
+        original_pdf = self.letter.pdf_file.name
+        self.client.login(username="staff1", password="password123")
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.subject, "Updated Subject")
+        self.assertEqual(self.letter.pdf_file.name, original_pdf)
+
     def test_creator_staff_can_edit_rejected_letter_and_resets_to_draft(self):
         self.letter.status = OutboundLetter.Status.REJECTED
         self.letter.save()

@@ -150,6 +150,7 @@ class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView)
                 }
             ),
         )
+        form.fields["pdf_file"].required = False
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"

@@ -409,6 +409,17 @@ class InboundLetterEditTestCase(TestCase):
         self.assertEqual(self.letter.original_ref_no, "REF-002")
         self.assertEqual(self.letter.sender.name, "New Sender")
 
+    def test_edit_without_new_pdf_keeps_existing_file(self):
+        data = self.post_data()
+        data.pop("pdf_file")
+        original_pdf = self.letter.pdf_file.name
+        self.client.login(username="sek", password="password123")
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.title, "Updated Title")
+        self.assertEqual(self.letter.pdf_file.name, original_pdf)
+
     def test_creator_sek_can_get_edit_form_with_sender_prefilled(self):
         self.client.login(username="sek", password="password123")
         response = self.client.get(self.url)
