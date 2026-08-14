@@ -101,6 +101,8 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
             )
+            if field.required:
+                field.widget.attrs["required"] = "required"
         return form
 
     def form_valid(self, form):
