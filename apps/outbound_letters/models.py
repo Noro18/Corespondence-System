@@ -60,9 +60,19 @@ class OutboundLetter(models.Model):
                     pass
             self.tracking_code = f"{prefix}-{next_num:04d}"
         
+        # Check if this is a new instance or if the pdf_file has changed / thumbnail is missing
+        old_pdf = None
+        if not is_new:
+            try:
+                old_pdf = OutboundLetter.objects.filter(pk=self.pk).values_list('pdf_file', flat=True).first()
+            except Exception:
+                pass
+
         super().save(*args, **kwargs)
 
-        if is_new and self.pdf_file and not self.thumbnail:
+        # Generate or regenerate thumbnail if it's new, missing, or pdf_file changed
+        has_pdf_changed = old_pdf and old_pdf != self.pdf_file.name
+        if (is_new or not self.thumbnail or has_pdf_changed) and self.pdf_file:
             try:
                 import fitz
                 import os
