@@ -12,5 +12,6 @@ urlpatterns = [
     path("assignments/<int:pk>/update/", views.AssignmentUpdateView.as_view(), name="assignment_update"),
     path("<int:pk>/archive/", views.InboundLetterArchiveView.as_view(), name="archive"),
     path("<int:pk>/", views.InboundLetterDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.InboundLetterUpdateView.as_view(), name="edit"),
     path("<int:pk>/delete/", views.InboundLetterDeleteView.as_view(), name="delete"),
 ]

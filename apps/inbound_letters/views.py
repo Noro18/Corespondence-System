@@ -113,6 +113,62 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
         return super().form_valid(form)
 
 
+class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView):
+    model = InboundLetter
+    template_name = "inbound_letters/letter_form.html"
+    fields = [
+        "title", "original_ref_no", "sender", "letter_date",
+        "pdf_file", "description", "notes", "category",
+    ]
+    context_object_name = "letter"
+    extra_context = {"title": "Edit Inbound Letter"}
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.role == CustomUser.Role.ADMIN:
+            return qs
+        return qs.filter(registered_by=user).exclude(
+            status__in=[InboundLetter.Status.COMPLETED, InboundLetter.Status.ARCHIVED]
+        )
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["title"].label = "Subject"
+        form.fields.pop("sender")
+        form.fields["letter_date"].widget = forms.DateInput(
+            attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
+        )
+        form.fields["sender_name"] = forms.CharField(
+            max_length=255,
+            label="Sender",
+            initial=self.object.sender.name,
+            widget=forms.TextInput(
+                attrs={
+                    "list": "senders-list",
+                    "placeholder": "Type or select sender name",
+                }
+            ),
+        )
+        form.fields["pdf_file"].required = False
+        for field in form.fields.values():
+            field.widget.attrs.setdefault("class",
+                "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
+            )
+            if field.required:
+                field.widget.attrs["required"] = "required"
+        return form
+
+    def form_valid(self, form):
+        name = form.cleaned_data["sender_name"].strip()
+        sender, _ = Sender.objects.get_or_create(name=name)
+        form.instance.sender = sender
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("inbound_letters:detail", kwargs={"pk": self.object.pk})
+
+
 class InboundLetterDetailView(LoginRequiredMixin, DetailView):
     model = InboundLetter
     template_name = "inbound_letters/letter_detail.html"

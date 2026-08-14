@@ -11,6 +11,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from apps.accounts.models import CustomUser
 from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffOrSekretariaduMixin
 from apps.common.utils import export_csv_response
@@ -112,20 +113,23 @@ class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Upd
         "recipient_address", "original_ref_no", "letter_date",
         "pdf_file", "notes", "category",
     ]
-    extra_context = {"title": "Edit Rejected Outbound Letter"}
+    context_object_name = "letter"
+    extra_context = {"title": "Edit Outbound Letter"}
 
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        # Only allow editing if status is Rejected (REJ)
-        qs = qs.filter(status=OutboundLetter.Status.REJECTED)
-        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE]:
-            qs = qs.filter(created_by=user)
-        return qs
+        if user.role == CustomUser.Role.ADMIN:
+            return qs
+        # Creators can edit their own letters while still in Draft or Rejected
+        return qs.filter(created_by=user).filter(
+            status__in=[OutboundLetter.Status.DRAFT, OutboundLetter.Status.REJECTED]
+        )
 
     def form_valid(self, form):
-        # Reset status back to Draft (or keep as Draft so it can be reviewed again)
-        form.instance.status = OutboundLetter.Status.DRAFT
+        # Re-editing a rejected letter moves it back to Draft so it can be reviewed again
+        if form.instance.status == OutboundLetter.Status.REJECTED:
+            form.instance.status = OutboundLetter.Status.DRAFT
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -136,6 +140,7 @@ class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Upd
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
         )
+        form.fields["pdf_file"].required = False
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
