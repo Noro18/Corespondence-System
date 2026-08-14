@@ -9,7 +9,7 @@
     <span class="{% if letter.category == 'ASU' %}badge-maroon{% elif letter.category == 'INF' %}bg-gray-100 text-gray-700{% else %}bg-yellow-100 text-yellow-700{% endif %} px-2 py-1 rounded text-xs align-middle ml-2">{{ letter.get_category_display }}</span>
   </h1>
   <div class="flex gap-2">
-    {% if letter.status == 'REJ' and user.role == 'STF' or letter.status == 'REJ' and user.role == 'SEK' or letter.status == 'REJ' and user.role == 'ADMIN' %}
+    {% if user.role == 'ADMIN' or letter.created_by == user and letter.status == 'DRF' or letter.created_by == user and letter.status == 'REJ' %}
     <a href="{% url 'outbound_letters:edit' letter.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">Edit Letter</a>
     {% endif %}
     {% if can_review and letter.status == 'DRF' %}

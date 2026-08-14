@@ -63,6 +63,9 @@
         </td>
         <td class="px-6 py-3">
           <a href="{% url 'outbound_letters:detail' letter.pk %}" class="btn-plain">View</a>
+          {% if user.role == 'ADMIN' or letter.created_by == user and letter.status == 'DRF' or letter.created_by == user and letter.status == 'REJ' %}
+          <a href="{% url 'outbound_letters:edit' letter.pk %}" class="btn-plain">Edit</a>
+          {% endif %}
         </td>
       </tr>
       {% empty %}

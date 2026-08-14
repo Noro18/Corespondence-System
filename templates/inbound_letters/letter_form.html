@@ -40,7 +40,7 @@
 
       <div class="flex items-center gap-4 pt-4">
         <button type="submit" class="btn-maroon">Save</button>
-        <a href="{% url 'inbound_letters:list' %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+        <a href="{% if letter %}{% url 'inbound_letters:detail' letter.pk %}{% else %}{% url 'inbound_letters:list' %}{% endif %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
       </div>
     </form>
   </div>

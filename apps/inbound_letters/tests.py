@@ -362,3 +362,89 @@ class ArchiveTestCase(TestCase):
         self.assertIn(b"IN-OTHER01", res_admin.content)
 
 
+class InboundLetterEditTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.sender = Sender.objects.create(name="Test Sender")
+        self.sek = CustomUser.objects.create_user(
+            username="sek", password="password123", role=CustomUser.Role.SEKRETARIADU
+        )
+        self.sek2 = CustomUser.objects.create_user(
+            username="sek2", password="password123", role=CustomUser.Role.SEKRETARIADU
+        )
+        self.admin = CustomUser.objects.create_user(
+            username="admin", password="password123", role=CustomUser.Role.ADMIN
+        )
+        self.staff = CustomUser.objects.create_user(
+            username="staff", password="password123", role=CustomUser.Role.STAFF
+        )
+        self.pdf = SimpleUploadedFile("edit_letter.pdf", b"%PDF-1.4 dummy", content_type="application/pdf")
+        self.letter = InboundLetter.objects.create(
+            tracking_code="IN-EDIT001",
+            title="Original Title",
+            original_ref_no="REF-001",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            pdf_file=self.pdf,
+            registered_by=self.sek,
+        )
+        self.url = reverse("inbound_letters:edit", args=[self.letter.pk])
+
+    def post_data(self):
+        return {
+            "title": "Updated Title",
+            "original_ref_no": "REF-002",
+            "sender_name": "New Sender",
+            "letter_date": "2026-08-01",
+            "category": LetterCategory.ASSUNTO,
+            "pdf_file": SimpleUploadedFile("edit_letter.pdf", b"%PDF-1.4 dummy", content_type="application/pdf"),
+        }
+
+    def test_creator_sek_can_edit_own_letter(self):
+        self.client.login(username="sek", password="password123")
+        response = self.client.post(self.url, self.post_data())
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.title, "Updated Title")
+        self.assertEqual(self.letter.original_ref_no, "REF-002")
+        self.assertEqual(self.letter.sender.name, "New Sender")
+
+    def test_creator_sek_can_get_edit_form_with_sender_prefilled(self):
+        self.client.login(username="sek", password="password123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="Test Sender"')
+        self.assertContains(response, "Edit Inbound Letter")
+
+    def test_sek_cannot_edit_others_letter(self):
+        self.client.login(username="sek2", password="password123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_creator_sek_cannot_edit_completed_letter(self):
+        self.letter.status = InboundLetter.Status.COMPLETED
+        self.letter.save()
+        self.client.login(username="sek", password="password123")
+        self.assertEqual(self.client.get(self.url).status_code, 404)
+
+    def test_creator_sek_cannot_edit_archived_letter(self):
+        self.letter.status = InboundLetter.Status.ARCHIVED
+        self.letter.save()
+        self.client.login(username="sek", password="password123")
+        self.assertEqual(self.client.get(self.url).status_code, 404)
+
+    def test_admin_can_edit_any_status_letter(self):
+        self.letter.status = InboundLetter.Status.COMPLETED
+        self.letter.save()
+        self.client.login(username="admin", password="password123")
+        response = self.client.post(self.url, self.post_data())
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.title, "Updated Title")
+        self.assertEqual(self.letter.status, InboundLetter.Status.COMPLETED)
+
+    def test_staff_cannot_edit_letter(self):
+        self.client.login(username="staff", password="password123")
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+
+
