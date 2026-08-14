@@ -124,12 +124,24 @@
           <p class="text-red-200 text-sm">RAEOA / ZEEMS-TL</p>
         </div>
       </div>
-      <div class="flex items-center gap-4">
-        <span class="text-red-100 text-sm">{{ user.get_full_name }} ({{ user.get_role_display }})</span>
+      <div class="flex items-center gap-3">
+        <span class="text-red-100 text-sm font-medium">{{ user.get_full_name }}</span>
+        <span class="text-xs bg-red-950/60 text-red-200 px-2.5 py-1 rounded-full border border-red-500/30 uppercase tracking-wider font-semibold">
+          {% if user.role == 'ADMIN' %}Administrator
+          {% elif user.role == 'SEK' %}Secretariat
+          {% elif user.role == 'PREZ' %}President
+          {% elif user.role == 'STF' %}Staff
+          {% else %}{{ user.get_role_display }}{% endif %}
+        </span>
+        <a href="{% url 'accounts:profile' %}" title="Edit Profile & Settings" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-900/80 hover:bg-red-700 text-white transition shadow-sm border border-red-400/30 ml-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </a>
         {% if user.role == 'ADMIN' %}
-        <a href="{% url 'admin:index' %}" class="text-red-200 hover:text-white text-sm">Admin</a>
+        <a href="{% url 'admin:index' %}" class="text-red-200 hover:text-white text-sm ml-2">Admin</a>
         {% endif %}
-        <a href="{% url 'accounts:logout' %}" class="bg-maroon-band hover:bg-maroon-dark text-white px-4 py-2 rounded text-sm font-medium">Logout</a>
+        <a href="{% url 'accounts:logout' %}" class="bg-maroon-band hover:bg-maroon-dark text-white px-3 py-1.5 rounded text-sm font-medium ml-1">Logout</a>
       </div>
     </div>
   </header>

@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import BaseUserCreationForm, UserChangeForm
@@ -30,6 +31,48 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = CustomUser
         fields = ("username", "first_name", "last_name", "email", "role", "phone", "department", "is_active")
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ("username", "first_name", "last_name", "email", "phone")
+
+
+class ProfileView(LoginRequiredMixin, View):
+    template_name = "accounts/profile.html"
+
+    def get(self, request):
+        user_form = UserProfileForm(instance=request.user)
+        password_form = django.contrib.auth.forms.PasswordChangeForm(user=request.user)
+        return django.shortcuts.render(request, self.template_name, {
+            "user_form": user_form,
+            "password_form": password_form,
+        })
+
+    def post(self, request):
+        action = request.POST.get("action")
+        user_form = UserProfileForm(instance=request.user)
+        password_form = django.contrib.auth.forms.PasswordChangeForm(user=request.user)
+
+        if action == "update_profile":
+            user_form = UserProfileForm(request.POST, instance=request.user)
+            if user_form.is_valid():
+                user_form.save()
+                django.contrib.messages.success(request, "Your profile details have been successfully updated.")
+                return HttpResponseRedirect(reverse("monitoring:dashboard"))
+        elif action == "change_password":
+            password_form = django.contrib.auth.forms.PasswordChangeForm(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                django.contrib.auth.update_session_auth_hash(request, password_form.user)
+                django.contrib.messages.success(request, "Your password has been successfully changed.")
+                return HttpResponseRedirect(reverse("monitoring:dashboard"))
+
+        return django.shortcuts.render(request, self.template_name, {
+            "user_form": user_form,
+            "password_form": password_form,
+        })
 
 
 class UserListView(AdminMixin, LoginRequiredMixin, ListView):
