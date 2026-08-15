@@ -33,7 +33,7 @@ class OutboundLetter(models.Model):
     )
     category = models.CharField(
         max_length=3, choices=LetterCategory.choices,
-        default=LetterCategory.ASSUNTO, db_index=True
+        default=LetterCategory.PEDIDU, db_index=True
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
