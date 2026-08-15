@@ -125,7 +125,7 @@ ADMIN:
 ├── Users (CRUD)
 ├── Karta Tama → All Letters, Register
 ├── Karta Sai → All Drafts, Approvals
-├── Asuntu Karta → All Assignments
+├── Karta → All Assignments
 └── Reports
 
 SEKRETARIADU:
@@ -138,7 +138,7 @@ PREZIDENTE:
 ├── Dashboard
 ├── Karta Tama → All Letters (for despatch)
 ├── Karta Sai → Approvals Pending
-├── Asuntu Karta → All Assignments
+├── Karta → All Assignments
 └── Overdue Reports
 
 STAFF:
