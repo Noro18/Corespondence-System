@@ -44,7 +44,7 @@ class OutboundLetterEditTestCase(TestCase):
             "recipient_address": "Address",
             "original_ref_no": "REF-002",
             "letter_date": "2026-08-01",
-            "category": "ASU",
+            "category": "PED",
             "pdf_file": SimpleUploadedFile("edit_out.pdf", b"%PDF-1.4 dummy", content_type="application/pdf"),
         }
 
