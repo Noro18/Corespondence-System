@@ -34,6 +34,7 @@ class InboundLetterTestCase(TestCase):
     def test_detail_and_list_views(self):
         letter = InboundLetter.objects.create(
             tracking_code="IN-TEST002",
+            original_ref_no="REF-002",
             title="Another Test Letter",
             sender=self.sender,
             letter_date="2026-07-30",
@@ -42,7 +43,7 @@ class InboundLetterTestCase(TestCase):
         )
         response_list = self.client.get(reverse("inbound_letters:list"))
         self.assertEqual(response_list.status_code, 200)
-        self.assertContains(response_list, letter.tracking_code)
+        self.assertContains(response_list, letter.original_ref_no)
 
         response_detail = self.client.get(reverse("inbound_letters:detail", args=[letter.pk]))
         self.assertEqual(response_detail.status_code, 200)
@@ -204,6 +205,7 @@ class CategoryTestCase(TestCase):
     def test_list_filter_by_category(self):
         InboundLetter.objects.create(
             tracking_code="IN-CAT003",
+            original_ref_no="REF-CAT003",
             title="Invitation Letter",
             sender=self.sender,
             letter_date="2026-07-30",
@@ -211,8 +213,8 @@ class CategoryTestCase(TestCase):
             category=LetterCategory.CONVITE,
         )
         response = self.client.get(reverse("inbound_letters:list"), {"category": LetterCategory.CONVITE})
-        self.assertContains(response, "IN-CAT003")
-        self.assertNotContains(response, "IN-CAT001")
+        self.assertContains(response, "REF-CAT003")
+        self.assertNotContains(response, "REF-CAT001")
 
     def test_detail_shows_category_badge(self):
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
