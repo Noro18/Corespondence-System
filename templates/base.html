@@ -155,7 +155,7 @@
       <p class="nav-section">Inbound Letters</p>
       <ul class="space-y-1">
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Register Letter</a></li>
+        <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Register Inbound</a></li>
         {% endif %}
         {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
         <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">All Inbound Letters</a></li>
@@ -166,6 +166,9 @@
       </ul>
       <p class="nav-section">Outbound Letters</p>
       <ul class="space-y-1">
+        {% if user.role == 'SEK' or user.role == 'ADMIN' %}
+        <li><a href="{% url 'outbound_letters:create' %}" class="nav-link">Register Outbound</a></li>
+        {% endif %}
         {% if user.role == 'SEK' or user.role == 'STF' or user.role == 'ADMIN' %}
         <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">My Drafts</a></li>
         {% endif %}
