@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from apps.accounts.models import CustomUser
 from apps.common.choices import LetterCategory
-from apps.inbound_letters.models import Assignment, Sender, InboundLetter
+from apps.inbound_letters.models import Assignment, InboundDecision, Sender, InboundLetter
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -98,7 +98,18 @@ class AssignmentWorkflowTestCase(TestCase):
         self.assertNotEqual(response.status_code, 200)
         self.assertFalse(Assignment.objects.exists())
 
+    def test_despaxu_blocked_before_acceptance(self):
+        self.client.login(username="prez", password="password123")
+        response = self.client.get(self.assign_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, reverse("inbound_letters:detail", args=[self.letter.pk])
+        )
+        self.assertFalse(Assignment.objects.exists())
+
     def test_despaxu_creates_assignment_and_marks_letter_assigned(self):
+        self.letter.status = InboundLetter.Status.ACCEPTED
+        self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.post(self.assign_url, {
             "assigned_to": self.staff.pk,
@@ -114,6 +125,8 @@ class AssignmentWorkflowTestCase(TestCase):
         self.assertEqual(self.letter.status, InboundLetter.Status.ASSIGNED)
 
     def test_despaxu_form_only_lists_staff_users(self):
+        self.letter.status = InboundLetter.Status.ACCEPTED
+        self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.get(self.assign_url)
         form = response.context["form"]
@@ -183,7 +196,7 @@ class CategoryTestCase(TestCase):
             sender=self.sender,
             letter_date="2026-07-30",
             registered_by=self.sek,
-            category=LetterCategory.ASSUNTO,
+            category=LetterCategory.PEDIDU,
         )
         self.client.login(username="sek", password="password123")
 
@@ -191,7 +204,7 @@ class CategoryTestCase(TestCase):
         response = self.client.get(reverse("inbound_letters:create"))
         self.assertContains(response, 'name="category"')
 
-    def test_default_category_is_assunto(self):
+    def test_default_category_is_pedidu(self):
         letter = InboundLetter.objects.create(
             tracking_code="IN-CAT002",
             title="No Category Given",
@@ -199,7 +212,7 @@ class CategoryTestCase(TestCase):
             letter_date="2026-07-30",
             registered_by=self.sek,
         )
-        self.assertEqual(letter.category, LetterCategory.ASSUNTO)
+        self.assertEqual(letter.category, LetterCategory.PEDIDU)
 
     def test_list_filter_by_category(self):
         InboundLetter.objects.create(
@@ -218,15 +231,17 @@ class CategoryTestCase(TestCase):
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
         self.assertContains(response, self.letter.get_category_display())
 
-    def test_despaxu_still_allowed_for_informational_letter(self):
-        self.letter.category = LetterCategory.INFORMACAO
+    def test_despaxu_blocked_for_konvite_letter(self):
+        self.letter.category = LetterCategory.CONVITE
+        self.letter.status = InboundLetter.Status.ACCEPTED
         self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:assign", args=[self.letter.pk]))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("inbound_letters:detail", args=[self.letter.pk]))
 
-    def test_despaxu_allowed_for_all_categories(self):
-        self.letter.category = LetterCategory.CONVITE
+    def test_despaxu_allowed_for_pedidu_after_acceptance(self):
+        self.letter.status = InboundLetter.Status.ACCEPTED
         self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:assign", args=[self.letter.pk]))
@@ -268,8 +283,8 @@ class ArchiveTestCase(TestCase):
         self.letter.refresh_from_db()
         self.assertEqual(self.letter.status, InboundLetter.Status.ARCHIVED)
 
-    def test_admin_archives_completed_assunto_letter(self):
-        self.letter.category = LetterCategory.ASSUNTO
+    def test_admin_archives_completed_pedidu_letter(self):
+        self.letter.category = LetterCategory.PEDIDU
         self.letter.status = InboundLetter.Status.COMPLETED
         self.letter.save()
         self.client.login(username="admin", password="password123")
@@ -291,16 +306,17 @@ class ArchiveTestCase(TestCase):
         self.assertContains(response, "Archive")
         self.assertNotContains(response, "Despaxu")
 
-    def test_assunto_registered_detail_has_despaxu_not_archive(self):
-        self.letter.category = LetterCategory.ASSUNTO
+    def test_accepted_pedidu_detail_has_despaxu_not_archive(self):
+        self.letter.category = LetterCategory.PEDIDU
+        self.letter.status = InboundLetter.Status.ACCEPTED
         self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
         self.assertContains(response, "Despaxu")
-        self.assertNotContains(response, "Archive")
+        self.assertNotContains(response, ">Archive</button>")
 
-    def test_assunto_completed_detail_has_archive(self):
-        self.letter.category = LetterCategory.ASSUNTO
+    def test_completed_pedidu_detail_has_archive(self):
+        self.letter.category = LetterCategory.PEDIDU
         self.letter.status = InboundLetter.Status.COMPLETED
         self.letter.save()
         self.client.login(username="prez", password="password123")
@@ -396,7 +412,7 @@ class InboundLetterEditTestCase(TestCase):
             "original_ref_no": "REF-002",
             "sender_name": "New Sender",
             "letter_date": "2026-08-01",
-            "category": LetterCategory.ASSUNTO,
+            "category": LetterCategory.PEDIDU,
             "pdf_file": SimpleUploadedFile("edit_letter.pdf", b"%PDF-1.4 dummy", content_type="application/pdf"),
         }
 
@@ -457,5 +473,90 @@ class InboundLetterEditTestCase(TestCase):
     def test_staff_cannot_edit_letter(self):
         self.client.login(username="staff", password="password123")
         self.assertEqual(self.client.get(self.url).status_code, 403)
+
+
+class InboundLetterDecisionTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.sender = Sender.objects.create(name="Test Sender")
+        self.prez = CustomUser.objects.create_user(
+            username="prez", password="password123", role=CustomUser.Role.PREZIDENTE
+        )
+        self.sek = CustomUser.objects.create_user(
+            username="sek", password="password123", role=CustomUser.Role.SEKRETARIADU
+        )
+        self.letter = InboundLetter.objects.create(
+            tracking_code="IN-DEC001",
+            title="Decision Letter",
+            sender=self.sender,
+            letter_date="2026-07-30",
+            registered_by=self.sek,
+            category=LetterCategory.CONVITE,
+        )
+        self.decide_url = reverse("inbound_letters:decide", args=[self.letter.pk])
+
+    def test_prez_accepts_letter(self):
+        self.client.login(username="prez", password="password123")
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.ACCEPTED,
+            "comments": "Accepted for archive",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.ACCEPTED)
+        decision = InboundDecision.objects.get()
+        self.assertEqual(decision.decision, InboundDecision.Decision.ACCEPTED)
+        self.assertEqual(decision.decided_by, self.prez)
+        self.assertEqual(decision.comments, "Accepted for archive")
+        self.assertIsNotNone(decision.decided_at)
+
+    def test_prez_rejects_letter(self):
+        self.client.login(username="prez", password="password123")
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.REJECTED,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.REJECTED)
+        self.assertEqual(
+            InboundDecision.objects.get().decision, InboundDecision.Decision.REJECTED
+        )
+
+    def test_rejected_letter_can_be_reopened_and_accepted(self):
+        self.client.login(username="prez", password="password123")
+        self.client.post(self.decide_url, {"decision": InboundDecision.Decision.REJECTED})
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.ACCEPTED,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.letter.refresh_from_db()
+        self.assertEqual(self.letter.status, InboundLetter.Status.ACCEPTED)
+        self.assertEqual(InboundDecision.objects.count(), 2)
+
+    def test_sekretariadu_cannot_decide(self):
+        self.client.login(username="sek", password="password123")
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.ACCEPTED,
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(InboundDecision.objects.exists())
+
+    def test_decide_blocked_for_archived_letter(self):
+        self.letter.status = InboundLetter.Status.ARCHIVED
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.ACCEPTED,
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_accepted_letter_cannot_be_decided_again(self):
+        self.letter.status = InboundLetter.Status.ACCEPTED
+        self.letter.save()
+        self.client.login(username="prez", password="password123")
+        response = self.client.post(self.decide_url, {
+            "decision": InboundDecision.Decision.ACCEPTED,
+        })
+        self.assertEqual(response.status_code, 404)
 
 
