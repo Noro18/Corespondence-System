@@ -57,6 +57,11 @@
       </div>
       {% endfor %}
 
+      <div class="flex items-center gap-4 pt-4">
+        <button type="submit" class="btn-maroon">Save</button>
+        <a href="{% if letter %}{% url 'outbound_letters:detail' letter.pk %}{% else %}{% url 'outbound_letters:list' %}{% endif %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+      </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -106,5 +111,9 @@
     }
   });
 </script>
+
+    </form>
+  </div>
+</div>
 
 {% endblock %}
