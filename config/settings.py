@@ -10,22 +10,48 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load optional .env file (dev convenience; production sets real env vars)
+load_dotenv(BASE_DIR / ".env")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+
+def env_bool(name: str, default: bool = False) -> bool:
+    """Read a boolean from the environment, accepting 1/true/yes/on."""
+    return os.environ.get(name, str(default)).strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+
+
+def env_list(name: str, default: str = "") -> list[str]:
+    """Read a comma-separated list from the environment, dropping empty items."""
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-%2(gp#6e=yqb5-p$r_&dqj-*#l3ek9xg5^scd^@*z1va1(cr++"
+# Set DJANGO_SECRET_KEY in .env / environment. The fallback below is for
+# local development only and must never be used in production.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY", "django-insecure-%2(gp#6e=yqb5-p$r_&dqj-*#l3ek9xg5^scd^@*z1va1(cr++"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = []
+# Comma-separated list, e.g. DJANGO_ALLOWED_HOSTS=karta.raoea.gov.tl,192.168.1.10
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1")
+
+# Comma-separated origins, e.g. https://karta.raoea.gov.tl
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 
 # Application definition
@@ -84,13 +110,25 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+#
+# Default: SQLite file for local development.
+# Production: DB_ENGINE=django.db.backends.mysql plus DB_NAME/USER/PASSWORD/
+# HOST/PORT (see .env.example).
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("DB_NAME", BASE_DIR / "db.sqlite3"),
     }
 }
+
+if DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
+    DATABASES["default"].update(
+        USER=os.environ.get("DB_USER", ""),
+        PASSWORD=os.environ.get("DB_PASSWORD", ""),
+        HOST=os.environ.get("DB_HOST", "127.0.0.1"),
+        PORT=os.environ.get("DB_PORT", "3306"),
+    )
 
 
 # Password validation
