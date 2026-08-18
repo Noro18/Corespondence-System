@@ -80,9 +80,9 @@ class OutboundLetterCreateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Cre
     model = OutboundLetter
     template_name = "outbound_letters/letter_form.html"
     fields = [
-        "subject", "recipient_name", "recipient_institution",
-        "recipient_address", "original_ref_no", "letter_date",
-        "pdf_file", "notes", "category",
+        "subject", "category", "recipient_name", "recipient_institution",
+        "recipient_address", "letter_date", "original_ref_no",
+        "pdf_file", "notes",
     ]
     extra_context = {"title": "Create Outbound Letter"}
     success_url = reverse_lazy("outbound_letters:list")
@@ -109,9 +109,9 @@ class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Upd
     model = OutboundLetter
     template_name = "outbound_letters/letter_form.html"
     fields = [
-        "subject", "recipient_name", "recipient_institution",
-        "recipient_address", "original_ref_no", "letter_date",
-        "pdf_file", "notes", "category",
+        "subject", "category", "recipient_name", "recipient_institution",
+        "recipient_address", "letter_date", "original_ref_no",
+        "pdf_file", "notes",
     ]
     context_object_name = "letter"
     extra_context = {"title": "Edit Outbound Letter"}

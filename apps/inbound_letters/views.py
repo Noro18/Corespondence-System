@@ -74,8 +74,8 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
     model = InboundLetter
     template_name = "inbound_letters/letter_form.html"
     fields = [
-        "title", "original_ref_no", "sender", "letter_date",
-        "pdf_file", "description", "notes", "category",
+        "title", "category", "original_ref_no", "letter_date",
+        "pdf_file", "description", "notes",
     ]
     extra_context = {"title": "Register Inbound Letter"}
     success_url = reverse_lazy("inbound_letters:list")
@@ -97,6 +97,11 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
                 }
             ),
         )
+        form.fields = {
+            k: form.fields[k]
+            for k in ["title", "sender_name", "category", "letter_date",
+                      "original_ref_no", "pdf_file", "description", "notes"]
+        }
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
@@ -117,8 +122,8 @@ class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView)
     model = InboundLetter
     template_name = "inbound_letters/letter_form.html"
     fields = [
-        "title", "original_ref_no", "sender", "letter_date",
-        "pdf_file", "description", "notes", "category",
+        "title", "category", "original_ref_no", "letter_date",
+        "pdf_file", "description", "notes",
     ]
     context_object_name = "letter"
     extra_context = {"title": "Edit Inbound Letter"}
@@ -151,6 +156,11 @@ class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView)
             ),
         )
         form.fields["pdf_file"].required = False
+        form.fields = {
+            k: form.fields[k]
+            for k in ["title", "sender_name", "category", "letter_date",
+                      "original_ref_no", "pdf_file", "description", "notes"]
+        }
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
