@@ -83,7 +83,6 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["title"].label = "Subject"
-        form.fields.pop("sender")
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
         )
@@ -140,7 +139,6 @@ class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView)
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["title"].label = "Subject"
-        form.fields.pop("sender")
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
         )
