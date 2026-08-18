@@ -22,6 +22,8 @@ class Sender(models.Model):
 class InboundLetter(models.Model):
     class Status(models.TextChoices):
         REGISTERED = "REG", "Registered"
+        ACCEPTED = "APR", "Accepted"
+        REJECTED = "REJ", "Rejected"
         ASSIGNED = "ASN", "Assigned"
         COMPLETED = "CMP", "Completed"
         ARCHIVED = "ARC", "Archived"
@@ -45,7 +47,7 @@ class InboundLetter(models.Model):
     )
     category = models.CharField(
         max_length=3, choices=LetterCategory.choices,
-        default=LetterCategory.ASSUNTO, db_index=True
+        default=LetterCategory.PEDIDU, db_index=True
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -134,12 +136,37 @@ class InboundLetter(models.Model):
         ):
             self.status = self.Status.COMPLETED
             self.save(update_fields=["status"])
-        elif self.status == self.Status.REGISTERED:
+        elif self.status in [self.Status.REGISTERED, self.Status.ACCEPTED]:
             self.status = self.Status.ASSIGNED
             self.save(update_fields=["status"])
 
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
+
+
+class InboundDecision(models.Model):
+    class Decision(models.TextChoices):
+        ACCEPTED = "APR", "Accepted"
+        REJECTED = "REJ", "Rejected"
+
+    letter = models.ForeignKey(
+        InboundLetter, on_delete=models.CASCADE, related_name="decisions"
+    )
+    decision = models.CharField(max_length=3, choices=Decision.choices)
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="inbound_decisions",
+    )
+    comments = models.TextField(blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.letter.tracking_code} - {self.get_decision_display()}"
 
 
 class Assignment(models.Model):

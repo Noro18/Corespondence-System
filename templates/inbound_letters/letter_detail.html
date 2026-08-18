@@ -6,21 +6,36 @@
 
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-bold text-gray-800">{{ letter.tracking_code }}
-    <span class="{% if letter.category == 'ASU' %}badge-maroon{% elif letter.category == 'INF' %}bg-gray-100 text-gray-700{% else %}bg-yellow-100 text-yellow-700{% endif %} px-2 py-1 rounded text-xs align-middle ml-2">{{ letter.get_category_display }}</span>
+    <span class="{% if letter.category == 'KVT' %}badge-maroon{% elif letter.category == 'AUD' %}bg-gray-100 text-gray-700{% elif letter.category == 'PRP' %}bg-blue-100 text-blue-700{% else %}bg-yellow-100 text-yellow-700{% endif %} px-2 py-1 rounded text-xs align-middle ml-2">{{ letter.get_category_display }}</span>
   </h1>
   <div class="flex gap-2">
     {% if user.role == 'ADMIN' or user.role == 'SEK' and letter.registered_by == user and letter.status != 'CMP' and letter.status != 'ARC' %}
     <a href="{% url 'inbound_letters:edit' letter.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">Edit</a>
     {% endif %}
     {% if letter.status != 'ARC' and user.role == 'ADMIN' or letter.status != 'ARC' and user.role == 'PREZ' %}
-      {% if letter.category == 'ASU' and letter.status == 'REG' %}
-      <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
-      {% endif %}
-      {% if letter.category != 'ASU' or letter.status == 'CMP' %}
-      <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
+      {% if letter.status == 'REG' or letter.status == 'REJ' %}
+      <form method="post" action="{% url 'inbound_letters:decide' letter.pk %}" class="inline">
         {% csrf_token %}
-        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive</button>
+        <input type="text" name="comments" placeholder="Comments (optional)" class="px-2 py-1 border border-gray-300 rounded text-xs w-40">
+        <button type="submit" name="decision" value="APR" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">Accept</button>
+        <button type="submit" name="decision" value="REJ" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Reject</button>
       </form>
+      {% endif %}
+      {% if letter.category == 'PED' or letter.category == 'PRP' %}
+        {% if letter.status == 'APR' %}
+        <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
+        {% endif %}
+        {% if letter.status == 'CMP' %}
+        <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive</button>
+        </form>
+        {% endif %}
+      {% else %}
+        <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive</button>
+        </form>
       {% endif %}
     {% endif %}
     {% if user.role == 'ADMIN' %}
@@ -62,7 +77,7 @@
       <div class="flex justify-between">
         <dt class="text-gray-500">Status</dt>
         <dd class="text-gray-800">
-          <span class="{% if letter.status == 'REG' %}badge-maroon{% elif letter.status == 'ASN' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'CMP' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
+          <span class="{% if letter.status == 'REG' %}badge-maroon{% elif letter.status == 'APR' %}bg-blue-100 text-blue-700{% elif letter.status == 'REJ' %}bg-red-100 text-red-700{% elif letter.status == 'ASN' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'CMP' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
         </dd>
       </div>
       <div class="flex justify-between">
@@ -94,6 +109,26 @@
     <p class="text-gray-400 text-sm">No assignments yet</p>
     {% endif %}
   </div>
+</div>
+
+<div class="mt-6 panel p-6">
+  <h2 class="font-semibold text-gray-700 mb-4">Decision History</h2>
+  {% if letter.decisions.all %}
+  <div class="space-y-3">
+    {% for d in letter.decisions.all %}
+    <div class="border-l-4 {% if d.decision == 'APR' %}border-green-400{% else %}border-red-400{% endif %} pl-4 py-2">
+      <p class="text-sm font-medium">{{ d.get_decision_display }}</p>
+      <p class="text-xs text-gray-500">By {{ d.decided_by.get_full_name|default:d.decided_by.username }}</p>
+      {% if d.comments %}
+      <p class="text-sm text-gray-600 mt-1">{{ d.comments }}</p>
+      {% endif %}
+      <p class="text-xs text-gray-400 mt-1">{{ d.decided_at|date:"d/m/Y H:i" }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-400 text-sm">No decisions yet</p>
+  {% endif %}
 </div>
 
 {% if letter.description %}

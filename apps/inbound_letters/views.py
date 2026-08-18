@@ -10,7 +10,7 @@ from apps.common.choices import LetterCategory
 from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffMixin
 from apps.common.utils import export_csv_response
 
-from .models import Assignment, InboundLetter, Sender
+from .models import Assignment, InboundDecision, InboundLetter, Sender
 
 
 class InboundLetterListView(LoginRequiredMixin, ListView):
@@ -175,7 +175,7 @@ class InboundLetterDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "letter"
 
     def get_queryset(self):
-        qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to")
+        qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to", "decisions__decided_by")
         user = self.request.user
         if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
             return qs
@@ -194,9 +194,21 @@ class AssignmentCreateView(PrezidenteMixin, LoginRequiredMixin, CreateView):
     fields = ["assigned_to", "instructions", "due_date"]
     context_object_name = "assignment"
 
+    def get_letter(self):
+        return InboundLetter.objects.get(pk=self.kwargs["letter_pk"])
+
+    def dispatch(self, request, *args, **kwargs):
+        letter = self.get_letter()
+        if (
+            letter.category not in [LetterCategory.PEDIDU, LetterCategory.PROPOSTA]
+            or letter.status != InboundLetter.Status.ACCEPTED
+        ):
+            return HttpResponseRedirect(reverse("inbound_letters:detail", kwargs={"pk": letter.pk}))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["letter"] = InboundLetter.objects.get(pk=self.kwargs["letter_pk"])
+        context["letter"] = self.get_letter()
         return context
 
     def get_form(self, form_class=None):
@@ -212,7 +224,7 @@ class AssignmentCreateView(PrezidenteMixin, LoginRequiredMixin, CreateView):
         return form
 
     def form_valid(self, form):
-        letter = InboundLetter.objects.get(pk=self.kwargs["letter_pk"])
+        letter = self.get_letter()
         form.instance.letter = letter
         form.instance.assigned_by = self.request.user
         response = super().form_valid(form)
@@ -253,6 +265,42 @@ class AssignmentUpdateView(StaffMixin, LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("inbound_letters:detail", kwargs={"pk": self.object.letter.pk})
+
+
+class InboundLetterDecisionView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
+    model = InboundLetter
+    fields = []
+
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            status__in=[InboundLetter.Status.REGISTERED, InboundLetter.Status.REJECTED]
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        decision = request.POST.get("decision")
+        if decision not in [
+            InboundDecision.Decision.ACCEPTED,
+            InboundDecision.Decision.REJECTED,
+        ]:
+            return HttpResponseRedirect(
+                reverse("inbound_letters:detail", kwargs={"pk": self.object.pk})
+            )
+        self.object.status = {
+            InboundDecision.Decision.ACCEPTED: InboundLetter.Status.ACCEPTED,
+            InboundDecision.Decision.REJECTED: InboundLetter.Status.REJECTED,
+        }[decision]
+        self.object.save()
+        InboundDecision.objects.create(
+            letter=self.object,
+            decision=decision,
+            decided_by=request.user,
+            comments=request.POST.get("comments", ""),
+            decided_at=timezone.now(),
+        )
+        return HttpResponseRedirect(
+            reverse("inbound_letters:detail", kwargs={"pk": self.object.pk})
+        )
 
 
 class InboundLetterArchiveView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
