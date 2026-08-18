@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=5, choices=Role.choices, default=Role.STAFF)
     phone = models.CharField(max_length=20, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

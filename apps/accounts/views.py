@@ -36,7 +36,7 @@ class CustomUserChangeForm(UserChangeForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ("username", "first_name", "last_name", "email", "phone")
+        fields = ("username", "first_name", "last_name", "email", "phone", "profile_picture")
 
 
 class ProfileView(LoginRequiredMixin, View):
@@ -56,8 +56,10 @@ class ProfileView(LoginRequiredMixin, View):
         password_form = django.contrib.auth.forms.PasswordChangeForm(user=request.user)
 
         if action == "update_profile":
-            user_form = UserProfileForm(request.POST, instance=request.user)
+            user_form = UserProfileForm(request.POST, request.FILES, instance=request.user)
             if user_form.is_valid():
+                if request.POST.get("clear_picture"):
+                    user_form.instance.profile_picture = None
                 user_form.save()
                 django.contrib.messages.success(request, "Your profile details have been successfully updated.")
                 return HttpResponseRedirect(reverse("monitoring:dashboard"))

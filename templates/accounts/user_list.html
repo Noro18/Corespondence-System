@@ -13,6 +13,7 @@
   <table class="w-full text-sm tbl-steel">
     <thead>
       <tr class="text-white text-left">
+        <th class="px-6 py-3">Picture</th>
         <th class="px-6 py-3">Username</th>
         <th class="px-6 py-3">Full Name</th>
         <th class="px-6 py-3">Email</th>
@@ -26,6 +27,16 @@
     <tbody>
       {% for user_obj in users %}
       <tr>
+        <td class="px-6 py-3">
+          {% if user_obj.profile_picture %}
+          <img src="{{ user_obj.profile_picture.url }}" alt="{{ user_obj.get_full_name }}"
+               class="w-10 h-10 rounded-full object-cover border border-gray-200">
+          {% else %}
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-900 text-white text-xs font-bold">
+            {{ user_obj.first_name|first }}{{ user_obj.last_name|first }}
+          </span>
+          {% endif %}
+        </td>
         <td class="px-6 py-3 font-medium">{{ user_obj.username }}</td>
         <td class="px-6 py-3">{{ user_obj.get_full_name }}</td>
         <td class="px-6 py-3">{{ user_obj.email|default:"—" }}</td>
@@ -49,7 +60,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="8" class="px-6 py-4 muted text-center">No users found</td></tr>
+      <tr><td colspan="9" class="px-6 py-4 muted text-center">No users found</td></tr>
       {% endfor %}
     </tbody>
   </table>
