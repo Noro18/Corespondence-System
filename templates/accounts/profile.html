@@ -25,11 +25,38 @@
     <!-- Profile Details Form -->
     <div class="panel p-6">
       <h2 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h2>
-      <form method="post" class="space-y-4">
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
         {% csrf_token %}
         <input type="hidden" name="action" value="update_profile">
 
+        <!-- Profile Picture -->
+        <div class="flex items-center gap-4 mb-4">
+          <div class="shrink-0">
+            {% if user.profile_picture %}
+            <img id="avatar-preview" src="{{ user.profile_picture.url }}" alt="Profile"
+                 class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+            {% else %}
+            <span id="avatar-preview" class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-900 text-white text-2xl font-bold">
+              {{ user.first_name|first }}{{ user.last_name|first }}
+            </span>
+            {% endif %}
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+            <input type="file" name="profile_picture" accept="image/*" id="id_profile_picture"
+                   class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-maroon file:text-white hover:file:bg-maroon-dark file:cursor-pointer"
+                   onchange="previewAvatar(this)">
+            {% if user.profile_picture %}
+            <label class="inline-flex items-center gap-1.5 mt-2 text-xs text-gray-500 cursor-pointer">
+              <input type="checkbox" name="clear_picture" value="1" class="h-3 w-3 rounded border-gray-300 text-red-700 focus:ring-[#900000]">
+              Remove current picture
+            </label>
+            {% endif %}
+          </div>
+        </div>
+
         {% for field in user_form %}
+        {% if field.name != "profile_picture" %}
         <div>
           <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
           {{ field }}
@@ -40,6 +67,7 @@
           <p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>
           {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
 
         <div class="pt-4">
@@ -85,9 +113,28 @@
 <script>
   // Add styling classes to form widgets dynamically
   document.querySelectorAll('input, select, textarea').forEach(el => {
-    if (!el.classList.contains('w-full') && el.type !== 'checkbox' && el.type !== 'hidden') {
+    if (!el.classList.contains('w-full') && el.type !== 'checkbox' && el.type !== 'hidden' && el.type !== 'file') {
       el.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded', 'focus:outline-none', 'focus:ring-2', 'focus:ring-[#900000]');
     }
   });
+
+  function previewAvatar(input) {
+    var preview = document.getElementById('avatar-preview');
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        if (preview.tagName === 'IMG') {
+          preview.src = e.target.result;
+        } else {
+          var img = document.createElement('img');
+          img.id = 'avatar-preview';
+          img.src = e.target.result;
+          img.className = 'w-20 h-20 rounded-full object-cover border-2 border-gray-200';
+          preview.parentNode.replaceChild(img, preview);
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
 </script>
 {% endblock %}
