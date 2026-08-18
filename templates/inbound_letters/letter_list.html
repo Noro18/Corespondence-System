@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Inbound Letters - Correspondence System{% endblock %}
+{% block title %}Karta Tama - Sistema Karta{% endblock %}
 
 {% block content %}
 
 <div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-bold text-gray-800">Inbound Letters</h1>
+  <h1 class="text-2xl font-bold text-gray-800">Karta Tama</h1>
   <div class="flex items-center gap-2">
-    <a href="{% url 'inbound_letters:export' %}{% if request.GET.category %}?category={{ request.GET.category }}{% endif %}" class="btn-steel">Export CSV</a>
+    <a href="{% url 'inbound_letters:export' %}{% if request.GET.category %}?category={{ request.GET.category }}{% endif %}" class="btn-steel">Espórta CSV</a>
     {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-    <a href="{% url 'inbound_letters:create' %}" class="btn-maroon">+ Register Letter</a>
+    <a href="{% url 'inbound_letters:create' %}" class="btn-maroon">+ Rexista Karta</a>
     {% endif %}
   </div>
 </div>
 
 <form method="get" class="mb-4 flex items-center gap-2">
   <select name="category" class="px-3 py-2 border border-gray-300 rounded text-sm">
-    <option value="">All Categories</option>
+    <option value="">Kategoria Hotu</option>
     {% for value, label in categories %}
     <option value="{{ value }}" {% if request.GET.category == value %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <button type="submit" class="btn-steel">Filter</button>
+  <button type="submit" class="btn-steel">Filtra</button>
   {% if request.GET.category %}
-  <a href="{% url 'inbound_letters:list' %}" class="text-gray-500 text-sm hover:text-gray-700">Clear</a>
+  <a href="{% url 'inbound_letters:list' %}" class="text-gray-500 text-sm hover:text-gray-700">Hamos</a>
   {% endif %}
 </form>
 
@@ -31,14 +31,14 @@
   <table class="w-full text-sm tbl-steel">
     <thead>
       <tr class="bg-gray-50 text-gray-600 text-left">
-        <th class="px-6 py-3">Thumbnail</th>
-        <th class="px-6 py-3">Code</th>
-        <th class="px-6 py-3">Subject</th>
-        <th class="px-6 py-3">Sender</th>
-        <th class="px-6 py-3">Category</th>
-        <th class="px-6 py-3">Registered By</th>
-        <th class="px-6 py-3">Status</th>
-        <th class="px-6 py-3">Actions</th>
+        <th class="px-6 py-3">Miniatura</th>
+        <th class="px-6 py-3">Kódigu</th>
+        <th class="px-6 py-3">Asuntu</th>
+        <th class="px-6 py-3">Remetente</th>
+        <th class="px-6 py-3">Kategoria</th>
+        <th class="px-6 py-3">Rexista Husi</th>
+        <th class="px-6 py-3">Estadu</th>
+        <th class="px-6 py-3">Asaun</th>
       </tr>
     </thead>
     <tbody>
@@ -62,11 +62,11 @@
           <span class="{% if letter.status == 'REG' %}badge-maroon{% elif letter.status == 'ASN' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'CMP' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
         </td>
         <td class="px-6 py-3">
-          <a href="{% url 'inbound_letters:detail' letter.pk %}" class="btn-plain">View</a>
+          <a href="{% url 'inbound_letters:detail' letter.pk %}" class="btn-plain">Haree</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="8" class="px-6 py-4 muted text-center">No inbound letters yet</td></tr>
+      <tr><td colspan="8" class="px-6 py-4 muted text-center">Seidauk iha karta tama</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -75,11 +75,11 @@
 {% if is_paginated %}
 <div class="mt-4 flex justify-center gap-2">
   {% if page_obj.has_previous %}
-  <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-steel">Previous</a>
+  <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-steel">Fólihu</a>
   {% endif %}
-  <span class="px-3 py-1 text-sm text-gray-600">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  <span class="px-3 py-1 text-sm text-gray-600">Pájina {{ page_obj.number }} husi {{ page_obj.paginator.num_pages }}</span>
   {% if page_obj.has_next %}
-  <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-steel">Next</a>
+  <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-steel">Tuirmai</a>
   {% endif %}
 </div>
 {% endif %}

@@ -8,11 +8,11 @@ from apps.common.choices import LetterCategory
 
 class OutboundLetter(models.Model):
     class Status(models.TextChoices):
-        DRAFT = "DRF", "Draft"
-        IN_REVIEW = "REV", "In Review"
-        APPROVED = "APR", "Approved"
-        REJECTED = "REJ", "Rejected"
-        DISPATCHED = "DSP", "Dispatched"
+        DRAFT = "DRF", "Rascunu"
+        IN_REVIEW = "REV", "Iha Revizaun"
+        APPROVED = "APR", "Aprovadu"
+        REJECTED = "REJ", "Rebutu"
+        DISPATCHED = "DSP", "Despaxu Ona"
 
     tracking_code = models.CharField(max_length=30, unique=True, editable=False)
     subject = models.CharField(max_length=255)
@@ -111,14 +111,14 @@ class OutboundLetter(models.Model):
 
 class ApprovalStage(models.Model):
     class Stage(models.TextChoices):
-        REVIEW = "REV", "Review"
-        APPROVE = "APR", "Approval"
-        DISPATCH = "DSP", "Dispatch"
+        REVIEW = "REV", "Revizaun"
+        APPROVE = "APR", "Aprovasaun"
+        DISPATCH = "DSP", "Despaxu"
 
     class Decision(models.TextChoices):
-        PENDING = "PND", "Pending"
-        APPROVED = "APR", "Approved"
-        REJECTED = "REJ", "Rejected"
+        PENDING = "PND", "Hein"
+        APPROVED = "APR", "Aprovadu"
+        REJECTED = "REJ", "Rebutu"
 
     letter = models.ForeignKey(
         OutboundLetter, on_delete=models.CASCADE, related_name="approval_stages"

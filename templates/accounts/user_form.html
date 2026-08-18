@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }} - Correspondence System{% endblock %}
+{% block title %}{{ title }} - Sistema Karta{% endblock %}
 
 {% block content %}
 
@@ -40,9 +40,9 @@
 
       <div class="flex items-center gap-4 pt-4">
         <button type="submit" class="btn-maroon">
-          {% if object %}Update{% else %}Create{% endif %} User
+          {% if object %}Atualiza{% else %}Kria{% endif %} Uzuáriu
         </button>
-        <a href="{% url 'accounts:user_list' %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+        <a href="{% url 'accounts:user_list' %}" class="text-gray-600 hover:text-gray-800 text-sm">Kansela</a>
       </div>
     </form>
   </div>

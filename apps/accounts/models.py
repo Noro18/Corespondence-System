@@ -10,10 +10,10 @@ class CustomUserManager(UserManager):
 
 class CustomUser(AbstractUser):
     class Role(models.TextChoices):
-        ADMIN = "ADMIN", "Administrator"
-        SEKRETARIADU = "SEK", "Secretariat"
-        PREZIDENTE = "PREZ", "President"
-        STAFF = "STF", "Staff"
+        ADMIN = "ADMIN", "Administradór"
+        SEKRETARIADU = "SEK", "Sekretariadu"
+        PREZIDENTE = "PREZ", "Prezidente"
+        STAFF = "STF", "Funsionáriu"
 
     role = models.CharField(max_length=5, choices=Role.choices, default=Role.STAFF)
     phone = models.CharField(max_length=20, blank=True)

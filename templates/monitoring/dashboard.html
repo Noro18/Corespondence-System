@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Correspondence System{% endblock %}
+{% block title %}Painél - Sistema Karta{% endblock %}
 
 {% block content %}
 
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-  <h1 class="text-2xl font-bold text-gray-800">Dashboard & Monitoring</h1>
+  <h1 class="text-2xl font-bold text-gray-800">Painél no Monitorizasaun</h1>
   <div class="flex items-center gap-2">
-    <a href="{% url 'monitoring:export' %}?type=pending" class="btn-steel text-xs px-3 py-2">Export Pending CSV</a>
-    <a href="{% url 'monitoring:export' %}?type=in_progress" class="btn-steel text-xs px-3 py-2">Export In-Progress CSV</a>
-    <a href="{% url 'monitoring:export' %}?type=overdue" class="btn-steel text-xs px-3 py-2">Export Overdue CSV</a>
+    <a href="{% url 'monitoring:export' %}?type=pending" class="btn-steel text-xs px-3 py-2">Espórta CSV Karta Hein</a>
+    <a href="{% url 'monitoring:export' %}?type=in_progress" class="btn-steel text-xs px-3 py-2">Espórta CSV Progresu</a>
+    <a href="{% url 'monitoring:export' %}?type=overdue" class="btn-steel text-xs px-3 py-2">Espórta CSV Liutempu</a>
   </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
   <div class="panel p-6 border-l-4 border-yellow-400">
-    <p class="text-sm text-gray-500 uppercase">Pending Letters</p>
+    <p class="text-sm text-gray-500 uppercase">Karta Hein</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ total_pending }}</p>
-    <p class="text-xs text-gray-400 mt-1">Awaiting processing</p>
+    <p class="text-xs text-gray-400 mt-1">Hein atu prosesa</p>
   </div>
 
   <div class="panel p-6 border-l-4 border-steel">
-    <p class="text-sm text-gray-500 uppercase">In Progress</p>
+    <p class="text-sm text-gray-500 uppercase">Iha Progresu</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ in_progress }}</p>
-    <p class="text-xs text-gray-400 mt-1">Active assignments</p>
+    <p class="text-xs text-gray-400 mt-1">Tarefa ativa</p>
   </div>
 
   <div class="panel p-6 border-l-4 border-red-400">
-    <p class="text-sm text-gray-500 uppercase">Overdue</p>
+    <p class="text-sm text-gray-500 uppercase">Liutempu</p>
     <p class="text-3xl font-bold text-red-600 mt-2">{{ overdue }}</p>
-    <p class="text-xs text-gray-400 mt-1">Past due date</p>
+    <p class="text-xs text-gray-400 mt-1">Lui témpu límite</p>
   </div>
 
 </div>
@@ -39,17 +39,17 @@
   <div class="panel p-6 border-l-4 badge-maroon">
     <p class="text-sm text-gray-500 uppercase">Asuntu</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.ASU }}</p>
-    <p class="text-xs text-gray-400 mt-1">Letters needing action</p>
+    <p class="text-xs text-gray-400 mt-1">Karta ne'ebé presiza asaun</p>
   </div>
   <div class="panel p-6 border-l-4 bg-gray-100">
     <p class="text-sm text-gray-500 uppercase">Informasaun</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.INF }}</p>
-    <p class="text-xs text-gray-400 mt-1">Informational only</p>
+    <p class="text-xs text-gray-400 mt-1">Informasaun de'it</p>
   </div>
   <div class="panel p-6 border-l-4 bg-yellow-100">
     <p class="text-sm text-gray-500 uppercase">Konvite</p>
     <p class="text-3xl font-bold text-gray-800 mt-2">{{ category_counts.KVT }}</p>
-    <p class="text-xs text-gray-400 mt-1">Invitations</p>
+    <p class="text-xs text-gray-400 mt-1">Konvite sira</p>
   </div>
 </div>
 
@@ -57,7 +57,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
   <!-- Inbound Letters by Status -->
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-800 mb-4">Inbound Letters by Status</h2>
+    <h2 class="font-semibold text-gray-800 mb-4">Karta Tama husi Estadu</h2>
     <div class="relative h-64">
       <canvas id="inboundStatusChart"></canvas>
     </div>
@@ -65,7 +65,7 @@
 
   <!-- Outbound Letters by Status -->
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-800 mb-4">Outbound Letters by Status</h2>
+    <h2 class="font-semibold text-gray-800 mb-4">Karta Sai husi Estadu</h2>
     <div class="relative h-64">
       <canvas id="outboundStatusChart"></canvas>
     </div>
@@ -73,7 +73,7 @@
 
   <!-- Letters Received (Last 6 Months) -->
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-800 mb-4">Letters Received (Last 6 Months)</h2>
+    <h2 class="font-semibold text-gray-800 mb-4">Karta Simu (Fulan 6 Ikus)</h2>
     <div class="relative h-64">
       <canvas id="monthlyLettersChart"></canvas>
     </div>
@@ -81,7 +81,7 @@
 
   <!-- Tasks Overview -->
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-800 mb-4">Tasks Overview</h2>
+    <h2 class="font-semibold text-gray-800 mb-4">Rezumu Tarefa</h2>
     <div class="relative h-64">
       <canvas id="tasksOverviewChart"></canvas>
     </div>
@@ -91,16 +91,16 @@
 {% if overdue_assignments %}
 <div class="panel mb-8 overflow-hidden">
   <div class="px-6 py-4 bg-maroon-band">
-    <h2 class="font-semibold text-white">Alert: Overdue Assignments</h2>
+    <h2 class="font-semibold text-white">Avisu: Tarefa Liutempu</h2>
   </div>
   <div class="overflow-x-auto">
     <table class="w-full text-sm tbl-steel">
       <thead>
         <tr class="text-white text-left">
-          <th class="px-6 py-3">Letter</th>
-          <th class="px-6 py-3">Assigned To</th>
-          <th class="px-6 py-3">Due Date</th>
-          <th class="px-6 py-3">Status</th>
+          <th class="px-6 py-3">Karta</th>
+          <th class="px-6 py-3">Fó Ba</th>
+          <th class="px-6 py-3">Data Límite</th>
+          <th class="px-6 py-3">Estadu</th>
         </tr>
       </thead>
       <tbody>
@@ -110,7 +110,7 @@
           <td class="px-6 py-3">{{ task.assigned_to.get_full_name }}</td>
           <td class="px-6 py-3 text-red-600 font-medium">{{ task.due_date|date:"d/m/Y" }}</td>
           <td class="px-6 py-3">
-            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Overdue</span>
+            <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Liutempu</span>
           </td>
         </tr>
         {% endfor %}
@@ -122,24 +122,24 @@
 
 <div class="bg-steel rounded-lg shadow overflow-hidden mb-8">
   <div class="px-6 py-4 bg-steel-dark">
-    <h2 class="font-semibold text-white">Statistics</h2>
+    <h2 class="font-semibold text-white">Estatístika</h2>
   </div>
   <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
     <div class="text-center">
       <p class="text-3xl font-bold text-white">{{ total_letters }}</p>
-      <p class="text-sm text-red-100">Total Letters</p>
+      <p class="text-sm text-red-100">Total Karta</p>
     </div>
     <div class="text-center">
       <p class="text-3xl font-bold text-white">{{ total_pending }}</p>
-      <p class="text-sm text-red-100">Pending</p>
+      <p class="text-sm text-red-100">Hein</p>
     </div>
     <div class="text-center">
       <p class="text-3xl font-bold text-white">{{ in_progress }}</p>
-      <p class="text-sm text-red-100">In Progress</p>
+      <p class="text-sm text-red-100">Iha Progresu</p>
     </div>
     <div class="text-center">
       <p class="text-3xl font-bold text-white">{{ overdue }}</p>
-      <p class="text-sm text-red-100">Overdue</p>
+      <p class="text-sm text-red-100">Liutempu</p>
     </div>
   </div>
 </div>
@@ -148,16 +148,16 @@
 
   <div class="panel overflow-hidden">
     <div class="px-6 py-4 bg-steel">
-      <h2 class="font-semibold text-white">Recent Inbound Letters</h2>
+      <h2 class="font-semibold text-white">Karta Tama Foun</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm tbl-steel">
         <thead>
           <tr class="text-white text-left">
-            <th class="px-6 py-3">Code</th>
-            <th class="px-6 py-3">Subject</th>
-            <th class="px-6 py-3">Sender</th>
-            <th class="px-6 py-3">Status</th>
+            <th class="px-6 py-3">Kódigu</th>
+            <th class="px-6 py-3">Asuntu</th>
+            <th class="px-6 py-3">Remetente</th>
+            <th class="px-6 py-3">Estadu</th>
           </tr>
         </thead>
         <tbody>
@@ -171,7 +171,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4" class="px-6 py-4 muted text-center">No letters yet</td></tr>
+          <tr><td colspan="4" class="px-6 py-4 muted text-center">Seidauk iha karta</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -180,16 +180,16 @@
 
   <div class="panel overflow-hidden">
     <div class="px-6 py-4 bg-steel">
-      <h2 class="font-semibold text-white">My Tasks</h2>
+      <h2 class="font-semibold text-white">Ha'u-Nia Tarefa</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm tbl-steel">
         <thead>
           <tr class="text-white text-left">
-            <th class="px-6 py-3">Letter</th>
-            <th class="px-6 py-3">Instructions</th>
-            <th class="px-6 py-3">Due Date</th>
-            <th class="px-6 py-3">Status</th>
+            <th class="px-6 py-3">Karta</th>
+            <th class="px-6 py-3">Instruksaun</th>
+            <th class="px-6 py-3">Data Límite</th>
+            <th class="px-6 py-3">Estadu</th>
           </tr>
         </thead>
         <tbody>
@@ -203,7 +203,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4" class="px-6 py-4 muted text-center">No tasks assigned</td></tr>
+          <tr><td colspan="4" class="px-6 py-4 muted text-center">Seidauk iha tarefa</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -245,7 +245,7 @@
     data: {
       labels: {{ chart_outbound_labels|safe }},
       datasets: [{
-        label: 'Outbound Letters',
+        label: 'Karta Sai',
         data: {{ chart_outbound_values|safe }},
         backgroundColor: maroonPrimary
       }]
@@ -265,7 +265,7 @@
     data: {
       labels: {{ chart_monthly_labels|safe }},
       datasets: [{
-        label: 'Inbound Letters',
+        label: 'Karta Tama',
         data: {{ chart_monthly_values|safe }},
         borderColor: maroonPrimary,
         backgroundColor: 'rgba(144, 0, 0, 0.1)',

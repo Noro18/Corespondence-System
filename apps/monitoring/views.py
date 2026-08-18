@@ -117,7 +117,7 @@ class DashboardExportCSVView(LoginRequiredMixin, TemplateView):
         if report_type == "pending":
             # Dashboard counts pending letters as InboundLetters with status 'REG' (Registered / Pending processing)
             queryset = inbound_letters.filter(status="REG").select_related("sender", "registered_by")
-            headers = ["Tracking Code", "Original Ref No", "Title", "Sender", "Category", "Letter Date", "Status"]
+            headers = ["Kódigu Rastreiu", "No. Referénsia", "Asuntu", "Remetente", "Kategoria", "Data Karta", "Estadu"]
             rows = []
             for l in queryset:
                 rows.append([
@@ -133,7 +133,7 @@ class DashboardExportCSVView(LoginRequiredMixin, TemplateView):
         elif report_type == "in_progress":
             # Dashboard counts in-progress as active Assignments with status 'IPR'
             queryset = assignments.filter(status="IPR")
-            headers = ["Letter Code", "Letter Title", "Assigned To", "Instructions", "Due Date", "Status"]
+            headers = ["Kódigu Karta", "Asuntu Karta", "Fó Ba", "Instruksaun", "Data Límite", "Estadu"]
             rows = []
             for a in queryset:
                 rows.append([
@@ -148,7 +148,7 @@ class DashboardExportCSVView(LoginRequiredMixin, TemplateView):
         elif report_type == "overdue":
             # Dashboard counts overdue as Assignments past due date
             queryset = assignments.filter(status__in=["PND", "IPR"], due_date__lt=today)
-            headers = ["Letter Code", "Letter Title", "Assigned To", "Instructions", "Due Date", "Status"]
+            headers = ["Kódigu Karta", "Asuntu Karta", "Fó Ba", "Instruksaun", "Data Límite", "Estadu"]
             rows = []
             for a in queryset:
                 rows.append([
@@ -157,7 +157,7 @@ class DashboardExportCSVView(LoginRequiredMixin, TemplateView):
                     a.assigned_to.get_full_name() if a.assigned_to else "",
                     a.instructions,
                     a.due_date,
-                    "Overdue",
+                    "Liutempu",
                 ])
             filename = "overdue_assignments_report.csv"
         else:

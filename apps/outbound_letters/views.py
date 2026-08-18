@@ -56,8 +56,8 @@ class OutboundLetterExportCSVView(LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         headers = [
-            "Tracking Code", "Original Ref No", "Subject", "Recipient Institution",
-            "Recipient Name", "Category", "Letter Date", "Created By", "Status"
+            "Kódigu Rastreiu", "No. Referénsia", "Asuntu", "Instituisaun Destinatáriu",
+            "Naran Destinatáriu", "Kategoria", "Data Karta", "Kria Husi", "Estadu"
         ]
         rows = []
         for l in queryset:
@@ -83,7 +83,7 @@ class OutboundLetterCreateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Cre
         "recipient_address", "original_ref_no", "letter_date",
         "pdf_file", "notes", "category",
     ]
-    extra_context = {"title": "Create Outbound Letter"}
+    extra_context = {"title": "Kria Karta Sai"}
     success_url = reverse_lazy("outbound_letters:list")
 
     def form_valid(self, form):
@@ -92,6 +92,15 @@ class OutboundLetterCreateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Cre
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        form.fields["subject"].label = "Asuntu"
+        form.fields["recipient_name"].label = "Naran Destinatáriu"
+        form.fields["recipient_institution"].label = "Instituisaun Destinatáriu"
+        form.fields["recipient_address"].label = "Endereçu"
+        form.fields["original_ref_no"].label = "No. Referénsia"
+        form.fields["letter_date"].label = "Data Karta"
+        form.fields["pdf_file"].label = "Ficheiru PDF"
+        form.fields["notes"].label = "Nota"
+        form.fields["category"].label = "Kategoria"
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
         )
@@ -110,7 +119,7 @@ class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Upd
         "recipient_address", "original_ref_no", "letter_date",
         "pdf_file", "notes", "category",
     ]
-    extra_context = {"title": "Edit Rejected Outbound Letter"}
+    extra_context = {"title": "Edita Karta Sai ne'ebé Rebutu"}
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -131,6 +140,15 @@ class OutboundLetterUpdateView(StaffOrSekretariaduMixin, LoginRequiredMixin, Upd
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        form.fields["subject"].label = "Asuntu"
+        form.fields["recipient_name"].label = "Naran Destinatáriu"
+        form.fields["recipient_institution"].label = "Instituisaun Destinatáriu"
+        form.fields["recipient_address"].label = "Endereçu"
+        form.fields["original_ref_no"].label = "No. Referénsia"
+        form.fields["letter_date"].label = "Data Karta"
+        form.fields["pdf_file"].label = "Ficheiru PDF"
+        form.fields["notes"].label = "Nota"
+        form.fields["category"].label = "Kategoria"
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"}
         )

@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Delete - {{ letter.tracking_code }} - Correspondence System{% endblock %}
+{% block title %}Halakon - {{ letter.tracking_code }} - Sistema Karta{% endblock %}
 
 {% block content %}
 
 <div class="max-w-lg mx-auto">
   <div class="panel p-6">
-    <h1 class="text-xl font-bold text-gray-800 mb-2">Delete Letter</h1>
+    <h1 class="text-xl font-bold text-gray-800 mb-2">Halakon Karta</h1>
     <p class="text-gray-600 mb-6">
-      Are you sure you want to delete <strong>{{ letter.tracking_code }}</strong> — {{ letter.subject }}?
-      This action cannot be undone.
+      Ó konfirma atu halakon <strong>{{ letter.tracking_code }}</strong> — {{ letter.subject }}?
+      Asaun ne'e labó fali ona.
     </p>
 
     <form method="post">
       {% csrf_token %}
       <div class="flex items-center gap-4">
-        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-medium text-sm">Confirm Delete</button>
-        <a href="{% url 'outbound_letters:detail' letter.pk %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-medium text-sm">Konfirma Halakon</button>
+        <a href="{% url 'outbound_letters:detail' letter.pk %}" class="text-gray-600 hover:text-gray-800 text-sm">Kansela</a>
       </div>
     </form>
   </div>

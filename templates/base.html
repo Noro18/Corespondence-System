@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Correspondence System{% endblock %}</title>
+  <title>{% block title %}Sistema Karta{% endblock %}</title>
   {% load static %}
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -120,7 +120,7 @@
           <img src="{% static 'images/raoea_logo.png' %}" alt="RAEOA / ZEEMS-TL Logo"
                class="w-12 h-12 object-contain rounded-full bg-white">
           <div>
-          <h1 class="font-bold text-xl leading-tight">Correspondence System</h1>
+          <h1 class="font-bold text-xl leading-tight">Sistema Jestaun Karta</h1>
           <p class="text-red-200 text-sm">RAEOA / ZEEMS-TL</p>
         </div>
       </div>
@@ -129,42 +129,42 @@
         {% if user.role == 'ADMIN' %}
         <a href="{% url 'admin:index' %}" class="text-red-200 hover:text-white text-sm">Admin</a>
         {% endif %}
-        <a href="{% url 'accounts:logout' %}" class="bg-maroon-band hover:bg-maroon-dark text-white px-4 py-2 rounded text-sm font-medium">Logout</a>
+        <a href="{% url 'accounts:logout' %}" class="bg-maroon-band hover:bg-maroon-dark text-white px-4 py-2 rounded text-sm font-medium">Sai</a>
       </div>
     </div>
   </header>
 
   <div class="flex">
     <aside class="w-56 bg-white shadow shrink-0 min-h-[calc(100vh-88px)] p-4">
-      <p class="nav-section">Main</p>
+      <p class="nav-section">Prinsipál</p>
       <ul class="space-y-1">
-        <li><a href="{% url 'monitoring:dashboard' %}" class="nav-link">Dashboard</a></li>
+        <li><a href="{% url 'monitoring:dashboard' %}" class="nav-link">Painél</a></li>
       </ul>
-      <p class="nav-section">Inbound Letters</p>
+      <p class="nav-section">Karta Tama</p>
       <ul class="space-y-1">
         {% if user.role == 'SEK' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Register Letter</a></li>
+        <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Rexista Karta</a></li>
         {% endif %}
         {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">All Inbound Letters</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">Karta Tama Hotu</a></li>
         {% endif %}
         {% if user.role == 'STF' %}
-        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">My Tasks</a></li>
+        <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">Ha'u-Nia Tarefa</a></li>
         {% endif %}
       </ul>
-      <p class="nav-section">Outbound Letters</p>
+      <p class="nav-section">Karta Sai</p>
       <ul class="space-y-1">
         {% if user.role == 'SEK' or user.role == 'STF' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">My Drafts</a></li>
+        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">Ha'u-Nia Rascunu</a></li>
         {% endif %}
         {% if user.role == 'PREZ' or user.role == 'ADMIN' %}
-        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">Outbound Approvals</a></li>
+        <li><a href="{% url 'outbound_letters:list' %}" class="nav-link">Aprovasaun Karta Sai</a></li>
         {% endif %}
       </ul>
       {% if user.role == 'ADMIN' %}
-      <p class="nav-section">Administration</p>
+      <p class="nav-section">Administrasaun</p>
       <ul class="space-y-1">
-        <li><a href="{% url 'accounts:user_list' %}" class="nav-link">Users</a></li>
+        <li><a href="{% url 'accounts:user_list' %}" class="nav-link">Uzuáriu</a></li>
       </ul>
       {% endif %}
     </aside>

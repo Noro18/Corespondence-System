@@ -51,8 +51,8 @@ class InboundLetterExportCSVView(LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         headers = [
-            "Tracking Code", "Original Ref No", "Subject", "Sender",
-            "Category", "Letter Date", "Received Date", "Registered By", "Status"
+            "Kódigu Rastreiu", "No. Referénsia", "Asuntu", "Remetente",
+            "Kategoria", "Data Karta", "Data Simu", "Rexista Husi", "Estadu"
         ]
         rows = []
         for l in queryset:
@@ -77,26 +77,32 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
         "title", "original_ref_no", "sender", "letter_date",
         "pdf_file", "description", "notes", "category",
     ]
-    extra_context = {"title": "Register Inbound Letter"}
+    extra_context = {"title": "Rexista Karta Tama"}
     success_url = reverse_lazy("inbound_letters:list")
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields["title"].label = "Subject"
+        form.fields["title"].label = "Asuntu"
         form.fields.pop("sender")
         form.fields["letter_date"].widget = forms.DateInput(
             attrs={"type": "date", "class": "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"}
         )
         form.fields["sender_name"] = forms.CharField(
             max_length=255,
-            label="Sender",
+            label="Remetente",
             widget=forms.TextInput(
                 attrs={
                     "list": "senders-list",
-                    "placeholder": "Type or select sender name",
+                    "placeholder": "Hakerek ka hili naran remetente",
                 }
             ),
         )
+        form.fields["original_ref_no"].label = "No. Referénsia"
+        form.fields["letter_date"].label = "Data Karta"
+        form.fields["pdf_file"].label = "Ficheiru PDF"
+        form.fields["description"].label = "Deskrisaun"
+        form.fields["notes"].label = "Nota"
+        form.fields["category"].label = "Kategoria"
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"
@@ -146,6 +152,9 @@ class AssignmentCreateView(PrezidenteMixin, LoginRequiredMixin, CreateView):
         form.fields["assigned_to"].queryset = CustomUser.objects.filter(
             role=CustomUser.Role.STAFF
         ).order_by("username")
+        form.fields["assigned_to"].label = "Fó Ba"
+        form.fields["instructions"].label = "Instruksaun"
+        form.fields["due_date"].label = "Data Límite"
         form.fields["due_date"].widget = forms.DateInput(attrs={"type": "date"})
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
@@ -179,6 +188,8 @@ class AssignmentUpdateView(StaffMixin, LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+        form.fields["status"].label = "Estadu"
+        form.fields["completion_report"].label = "Relatóriu Kompletu"
         for field in form.fields.values():
             field.widget.attrs.setdefault("class",
                 "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#900000]"

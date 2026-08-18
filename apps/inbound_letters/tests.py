@@ -288,7 +288,7 @@ class ArchiveTestCase(TestCase):
     def test_konvite_detail_has_archive_not_despaxu(self):
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
-        self.assertContains(response, "Archive")
+        self.assertContains(response, "Arsivu")
         self.assertNotContains(response, "Despaxu")
 
     def test_assunto_registered_detail_has_despaxu_not_archive(self):
@@ -297,7 +297,7 @@ class ArchiveTestCase(TestCase):
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
         self.assertContains(response, "Despaxu")
-        self.assertNotContains(response, "Archive")
+        self.assertNotContains(response, "Arsivu")
 
     def test_assunto_completed_detail_has_archive(self):
         self.letter.category = LetterCategory.ASSUNTO
@@ -305,7 +305,7 @@ class ArchiveTestCase(TestCase):
         self.letter.save()
         self.client.login(username="prez", password="password123")
         response = self.client.get(reverse("inbound_letters:detail", args=[self.letter.pk]))
-        self.assertContains(response, "Archive")
+        self.assertContains(response, "Arsivu")
         self.assertNotContains(response, "Despaxu")
 
     def test_archived_letter_has_no_archive_or_despaxu_button(self):

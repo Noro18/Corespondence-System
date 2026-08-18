@@ -25,11 +25,36 @@ class CustomUserCreationForm(BaseUserCreationForm):
         model = CustomUser
         fields = ("username", "first_name", "last_name", "email", "role", "phone", "department")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Naran Uzuáriu"
+        self.fields["first_name"].label = "Naran Primeiru"
+        self.fields["last_name"].label = "Naran Famia"
+        self.fields["email"].label = "E-mail"
+        self.fields["role"].label = "Papel"
+        self.fields["phone"].label = "Telefone"
+        self.fields["department"].label = "Departamentu"
+        if "password1" in self.fields:
+            self.fields["password1"].label = "Senha"
+        if "password2" in self.fields:
+            self.fields["password2"].label = "Konfirmasaun Senha"
+
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = CustomUser
         fields = ("username", "first_name", "last_name", "email", "role", "phone", "department", "is_active")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Naran Uzuáriu"
+        self.fields["first_name"].label = "Naran Primeiru"
+        self.fields["last_name"].label = "Naran Famia"
+        self.fields["email"].label = "E-mail"
+        self.fields["role"].label = "Papel"
+        self.fields["phone"].label = "Telefone"
+        self.fields["department"].label = "Departamentu"
+        self.fields["is_active"].label = "Ativu"
 
 
 class UserListView(AdminMixin, LoginRequiredMixin, ListView):
@@ -44,7 +69,7 @@ class UserCreateView(AdminMixin, LoginRequiredMixin, CreateView):
     model = CustomUser
     form_class = CustomUserCreationForm
     template_name = "accounts/user_form.html"
-    extra_context = {"title": "Add User"}
+    extra_context = {"title": "Aumenta Uzuáriu"}
     success_url = reverse_lazy("accounts:user_list")
 
     def get_form(self, form_class=None):
@@ -65,7 +90,7 @@ class UserUpdateView(AdminMixin, LoginRequiredMixin, UpdateView):
     model = CustomUser
     form_class = CustomUserChangeForm
     template_name = "accounts/user_form.html"
-    extra_context = {"title": "Edit User"}
+    extra_context = {"title": "Edita Uzuáriu"}
     success_url = reverse_lazy("accounts:user_list")
 
     def get_form(self, form_class=None):

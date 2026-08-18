@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ letter.tracking_code }} - Correspondence System{% endblock %}
+{% block title %}{{ letter.tracking_code }} - Sistema Karta{% endblock %}
 
 {% block content %}
 
@@ -10,87 +10,87 @@
   </h1>
   <div class="flex gap-2">
     {% if letter.status == 'REJ' and user.role == 'STF' or letter.status == 'REJ' and user.role == 'SEK' or letter.status == 'REJ' and user.role == 'ADMIN' %}
-    <a href="{% url 'outbound_letters:edit' letter.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">Edit Letter</a>
+    <a href="{% url 'outbound_letters:edit' letter.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">Edita Karta</a>
     {% endif %}
     {% if can_review and letter.status == 'DRF' %}
-    <a href="{% url 'outbound_letters:review' letter.pk 'REV' %}" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 text-sm">Review</a>
+    <a href="{% url 'outbound_letters:review' letter.pk 'REV' %}" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 text-sm">Revizaun</a>
     {% endif %}
     {% if can_dispatch and letter.status == 'APR' %}
     <form method="post" action="{% url 'outbound_letters:dispatch' letter.pk %}" class="inline">
       {% csrf_token %}
-      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">Mark Dispatched</button>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">Marca Despaxu</button>
     </form>
     {% endif %}
     {% if user.role == 'ADMIN' %}
-    <a href="{% url 'outbound_letters:delete' letter.pk %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Delete</a>
+    <a href="{% url 'outbound_letters:delete' letter.pk %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Halakon</a>
     {% endif %}
   </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-700 mb-4">Letter Details</h2>
+    <h2 class="font-semibold text-gray-700 mb-4">Detallu Karta</h2>
     <dl class="space-y-3 text-sm">
       <div class="flex justify-between">
-        <dt class="text-gray-500">Subject</dt>
+        <dt class="text-gray-500">Asuntu</dt>
         <dd class="text-gray-800 font-medium">{{ letter.subject }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Recipient</dt>
+        <dt class="text-gray-500">Destinatáriu</dt>
         <dd class="text-gray-800">{{ letter.recipient_name }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Institution</dt>
+        <dt class="text-gray-500">Instituisaun</dt>
         <dd class="text-gray-800">{{ letter.recipient_institution }}</dd>
       </div>
       {% if letter.recipient_address %}
       <div class="flex justify-between">
-        <dt class="text-gray-500">Address</dt>
+        <dt class="text-gray-500">Endereçu</dt>
         <dd class="text-gray-800">{{ letter.recipient_address }}</dd>
       </div>
       {% endif %}
       <div class="flex justify-between">
-        <dt class="text-gray-500">Ref No</dt>
+        <dt class="text-gray-500">No. Referénsia</dt>
         <dd class="text-gray-800">{{ letter.original_ref_no|default:"—" }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Letter Date</dt>
+        <dt class="text-gray-500">Data Karta</dt>
         <dd class="text-gray-800">{{ letter.letter_date|date:"d/m/Y" }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Status</dt>
+        <dt class="text-gray-500">Estadu</dt>
         <dd class="text-gray-800">
           <span class="{% if letter.status == 'DRF' %}bg-gray-100 text-gray-700{% elif letter.status == 'REV' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'APR' %}bg-green-100 text-green-700{% elif letter.status == 'REJ' %}bg-red-100 text-red-700{% else %}badge-maroon{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
         </dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Created By</dt>
+        <dt class="text-gray-500">Kria Husi</dt>
         <dd class="text-gray-800">{{ letter.created_by.get_full_name|default:letter.created_by.username }}</dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-gray-500">Created At</dt>
+        <dt class="text-gray-500">Kria Iha</dt>
         <dd class="text-gray-800">{{ letter.created_at|date:"d/m/Y H:i" }}</dd>
       </div>
     </dl>
   </div>
 
   <div class="panel p-6">
-    <h2 class="font-semibold text-gray-700 mb-4">Approval History</h2>
+    <h2 class="font-semibold text-gray-700 mb-4">Istóriku Aprovasaun</h2>
     {% if letter.approval_stages.all %}
     <div class="space-y-3">
       {% for stage in letter.approval_stages.all %}
       <div class="border-l-4 {% if stage.decision == 'APR' %}border-green-400{% elif stage.decision == 'REJ' %}border-red-400{% else %}border-gray-300{% endif %} pl-4 py-2">
         <p class="text-sm font-medium">{{ stage.get_stage_display }}</p>
-        <p class="text-xs text-gray-500">By {{ stage.reviewer.get_full_name|default:stage.reviewer.username }}</p>
+        <p class="text-xs text-gray-500">Husi {{ stage.reviewer.get_full_name|default:stage.reviewer.username }}</p>
         {% if stage.comments %}
         <p class="text-sm text-gray-600 mt-1">{{ stage.comments }}</p>
         {% endif %}
-        <p class="text-xs text-gray-400 mt-1">{{ stage.decided_at|date:"d/m/Y H:i"|default:"Pending" }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ stage.decided_at|date:"d/m/Y H:i"|default:"Hein" }}</p>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-gray-400 text-sm">No approval stages yet</p>
+    <p class="text-gray-400 text-sm">Seidauk iha faze aprovasaun</p>
     {% endif %}
   </div>
 </div>
@@ -98,15 +98,15 @@
 {% if letter.pdf_file %}
 <div class="mt-6 bg-white rounded-lg shadow p-6">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="font-semibold text-gray-700">PDF Document Preview</h2>
-    <a href="{{ letter.pdf_file.url }}" target="_blank" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm inline-block">Download PDF</a>
+    <h2 class="font-semibold text-gray-700">Vizaulizasaun Dokumentu PDF</h2>
+    <a href="{{ letter.pdf_file.url }}" target="_blank" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm inline-block">Deskarrega PDF</a>
   </div>
   <div class="w-full h-[600px] border border-gray-200 rounded overflow-hidden bg-gray-50 relative">
     <object data="{{ letter.pdf_file.url }}" type="application/pdf" class="w-full h-full">
       <iframe src="{{ letter.pdf_file.url }}" class="w-full h-full">
         <div class="p-6 text-center">
-          <p class="text-sm text-gray-600 mb-2">Unable to display PDF inline in this browser.</p>
-          <a href="{{ letter.pdf_file.url }}" target="_blank" class="text-blue-600 underline font-medium">Click here to open the PDF in a new tab</a>
+          <p class="text-sm text-gray-600 mb-2">Sei labó hatudu PDF diretamente iha navegadór ne'e.</p>
+          <a href="{{ letter.pdf_file.url }}" target="_blank" class="text-blue-600 underline font-medium">Klik iha ne'e hodi loke PDF iha aba foun</a>
         </div>
       </iframe>
     </object>
@@ -116,7 +116,7 @@
 
 {% if letter.notes %}
 <div class="mt-6 panel p-6">
-  <h2 class="font-semibold text-gray-700 mb-2">Notes</h2>
+  <h2 class="font-semibold text-gray-700 mb-2">Nota</h2>
   <p class="text-sm text-gray-600">{{ letter.notes }}</p>
 </div>
 {% endif %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }} - Correspondence System{% endblock %}
+{% block title %}{{ title }} - Sistema Karta{% endblock %}
 
 {% block content %}
 
@@ -39,8 +39,8 @@
       {% endif %}
 
       <div class="flex items-center gap-4 pt-4">
-        <button type="submit" class="btn-maroon">Save</button>
-        <a href="{% url 'inbound_letters:list' %}" class="text-gray-600 hover:text-gray-800 text-sm">Cancel</a>
+        <button type="submit" class="btn-maroon">Salva</button>
+        <a href="{% url 'inbound_letters:list' %}" class="text-gray-600 hover:text-gray-800 text-sm">Kansela</a>
       </div>
     </form>
   </div>
