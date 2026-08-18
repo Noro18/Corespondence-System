@@ -25,7 +25,7 @@ class InboundLetterListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        qs = InboundLetter.objects.select_related("sender", "registered_by")
+        qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to")
         user = self.request.user
         if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
             qs = qs.filter(assignments__assigned_to=user)
