@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load dashboard_tags %}
+
 {% block title %}Dashboard - Correspondence System{% endblock %}
 
 {% block content %}
@@ -173,6 +175,14 @@
             <td class="px-6 py-3">{{ letter.sender.name }}</td>
             <td class="px-6 py-3">
               <span class="{% if letter.status == 'REG' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'ASN' %}badge-maroon{% elif letter.status == 'CMP' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
+              {% if show_signals and letter.is_new %}
+              <span class="badge-new px-2 py-1 rounded text-xs font-medium">New</span>
+              {% endif %}
+              {% if show_signals and letter.due_status == 'overdue' %}
+              <span class="badge-overdue px-2 py-1 rounded text-xs font-medium">Overdue</span>
+              {% elif show_signals and letter.due_status == 'due_soon' %}
+              <span class="badge-due-soon px-2 py-1 rounded text-xs font-medium">Due soon</span>
+              {% endif %}
             </td>
           </tr>
           {% empty %}
@@ -199,12 +209,23 @@
         </thead>
         <tbody>
           {% for task in my_tasks %}
+          {% if show_signals and task.status != 'CMP' and task.due_date < today %}
+          <tr class="row-overdue">
+          {% elif show_signals and task.status != 'CMP' and task.due_date <= today|add_days:3 %}
+          <tr class="row-new">
+          {% else %}
           <tr>
+          {% endif %}
             <td class="px-6 py-3 font-mono">{{ task.letter.tracking_code }}</td>
             <td class="px-6 py-3">{{ task.instructions|truncatechars:30 }}</td>
             <td class="px-6 py-3">{{ task.due_date|date:"d/m/Y" }}</td>
             <td class="px-6 py-3">
               <span class="{% if task.status == 'PND' %}bg-yellow-100 text-yellow-700{% elif task.status == 'IPR' %}badge-maroon{% else %}bg-green-100 text-green-700{% endif %} px-2 py-1 rounded text-xs">{{ task.get_status_display }}</span>
+              {% if show_signals and task.status != 'CMP' and task.due_date < today %}
+              <span class="badge-overdue px-2 py-1 rounded text-xs font-medium">Overdue</span>
+              {% elif show_signals and task.status != 'CMP' and task.due_date <= today|add_days:3 %}
+              <span class="badge-due-soon px-2 py-1 rounded text-xs font-medium">Due soon</span>
+              {% endif %}
             </td>
           </tr>
           {% empty %}

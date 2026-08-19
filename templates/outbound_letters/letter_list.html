@@ -43,7 +43,7 @@
     </thead>
     <tbody>
       {% for letter in letters %}
-      <tr class="border-t hover:bg-gray-50">
+      <tr class="border-t hover:bg-gray-50 {% if show_signals and letter.is_new %}row-new{% endif %}">
         <td class="px-6 py-3">
           {% if letter.thumbnail %}
           <img src="{{ letter.thumbnail.url }}" alt="Thumbnail" class="w-10 h-12 object-cover rounded border border-gray-200 shadow-sm">
@@ -60,6 +60,9 @@
         <td class="px-6 py-3">{{ letter.created_by.get_full_name|default:letter.created_by.username }}</td>
         <td class="px-6 py-3">
           <span class="{% if letter.status == 'DRF' %}bg-gray-100 text-gray-700{% elif letter.status == 'REV' %}bg-yellow-100 text-yellow-700{% elif letter.status == 'APR' %}bg-green-100 text-green-700{% elif letter.status == 'REJ' %}bg-red-100 text-red-700{% else %}badge-maroon{% endif %} px-2 py-1 rounded text-xs">{{ letter.get_status_display }}</span>
+          {% if show_signals and letter.is_new %}
+          <span class="badge-new px-2 py-1 rounded text-xs font-medium">New</span>
+          {% endif %}
         </td>
         <td class="px-6 py-3">
           <a href="{% url 'outbound_letters:detail' letter.pk %}" class="btn-plain">View</a>

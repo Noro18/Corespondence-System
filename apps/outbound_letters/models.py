@@ -115,8 +115,14 @@ class OutboundLetter(models.Model):
     def __str__(self):
         return f"{self.tracking_code} - {self.subject}"
 
-    def __str__(self):
-        return f"{self.tracking_code} - {self.subject}"
+    @property
+    def is_new(self):
+        from django.utils import timezone
+
+        if self.status == self.Status.DRAFT:
+            return True
+        cutoff = timezone.now() - datetime.timedelta(days=3)
+        return self.created_at >= cutoff
 
 
 class ApprovalStage(models.Model):
