@@ -124,6 +124,14 @@ class UserUpdateView(AdminMixin, LoginRequiredMixin, UpdateView):
                 )
         return form
 
+    def form_valid(self, form):
+        if self.request.user.role == CustomUser.Role.ADMIN_WORKER:
+            # Prevent ADMW from altering user role or superuser flags
+            original = CustomUser.objects.get(pk=self.object.pk)
+            form.instance.role = original.role
+            form.instance.is_superuser = original.is_superuser
+        return super().form_valid(form)
+
 
 class UserDeleteView(AdminMixin, LoginRequiredMixin, DeleteView):
     model = CustomUser

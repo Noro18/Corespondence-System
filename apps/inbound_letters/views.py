@@ -7,7 +7,14 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from apps.accounts.models import CustomUser
 from apps.common.choices import LetterCategory
-from apps.common.mixins import AdminMixin, PrezidenteMixin, SekretariaduMixin, StaffMixin
+from apps.common.mixins import (
+    AdminMixin,
+    AdministratorWorkerMixin,
+    AdministratorWorkerOnlyMixin,
+    PrezidenteMixin,
+    SekretariaduMixin,
+    StaffMixin,
+)
 from apps.common.utils import export_csv_response
 
 from .models import Assignment, InboundDecision, InboundLetter, Sender
@@ -27,7 +34,8 @@ class InboundLetterListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to")
         user = self.request.user
-        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+        if user.role not in [user.Role.ADMIN, user.Role.ADMIN_WORKER, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            qs = qs.filter(assignments__assigned_to=user)
             qs = qs.filter(assignments__assigned_to=user)
         category = self.request.GET.get("category")
         if category:
@@ -41,7 +49,8 @@ class InboundLetterExportCSVView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = InboundLetter.objects.select_related("sender", "registered_by")
         user = self.request.user
-        if user.role not in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+        if user.role not in [user.Role.ADMIN, user.Role.ADMIN_WORKER, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+            qs = qs.filter(assignments__assigned_to=user)
             qs = qs.filter(assignments__assigned_to=user)
         category = self.request.GET.get("category")
         if category:
@@ -70,7 +79,7 @@ class InboundLetterExportCSVView(LoginRequiredMixin, ListView):
         return export_csv_response("inbound_letters.csv", headers, rows)
 
 
-class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView):
+class InboundLetterCreateView(AdministratorWorkerMixin, LoginRequiredMixin, CreateView):
     model = InboundLetter
     template_name = "inbound_letters/letter_form.html"
     fields = [
@@ -113,7 +122,7 @@ class InboundLetterCreateView(SekretariaduMixin, LoginRequiredMixin, CreateView)
         return super().form_valid(form)
 
 
-class InboundLetterUpdateView(SekretariaduMixin, LoginRequiredMixin, UpdateView):
+class InboundLetterUpdateView(AdministratorWorkerMixin, LoginRequiredMixin, UpdateView):
     model = InboundLetter
     template_name = "inbound_letters/letter_form.html"
     fields = [
@@ -177,7 +186,7 @@ class InboundLetterDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         qs = InboundLetter.objects.select_related("sender", "registered_by").prefetch_related("assignments__assigned_to", "decisions__decided_by")
         user = self.request.user
-        if user.role in [user.Role.ADMIN, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
+        if user.role in [user.Role.ADMIN, user.Role.ADMIN_WORKER, user.Role.PREZIDENTE, user.Role.SEKRETARIADU]:
             return qs
         return qs.filter(assignments__assigned_to=user)
 
@@ -303,7 +312,7 @@ class InboundLetterDecisionView(PrezidenteMixin, LoginRequiredMixin, UpdateView)
         )
 
 
-class InboundLetterArchiveView(PrezidenteMixin, LoginRequiredMixin, UpdateView):
+class InboundLetterArchiveView(AdministratorWorkerOnlyMixin, LoginRequiredMixin, UpdateView):
     model = InboundLetter
     fields = []
 

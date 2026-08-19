@@ -128,6 +128,7 @@
         <span class="text-red-100 text-sm font-medium">{{ user.get_full_name }}</span>
         <span class="text-xs bg-red-950/60 text-red-200 px-2.5 py-1 rounded-full border border-red-500/30 uppercase tracking-wider font-semibold">
           {% if user.role == 'ADMIN' %}Administrator
+          {% elif user.role == 'ADMW' %}Admin Worker
           {% elif user.role == 'SEK' %}Secretariat
           {% elif user.role == 'PREZ' %}President
           {% elif user.role == 'STF' %}Staff
@@ -154,10 +155,10 @@
       </ul>
       <p class="nav-section">Inbound Letters</p>
       <ul class="space-y-1">
-        {% if user.role == 'SEK' or user.role == 'ADMIN' %}
+        {% if user.role == 'ADMW' or user.role == 'ADMIN' %}
         <li><a href="{% url 'inbound_letters:create' %}" class="nav-link">Register Inbound</a></li>
         {% endif %}
-        {% if user.role == 'SEK' or user.role == 'PREZ' or user.role == 'ADMIN' %}
+        {% if user.role == 'SEK' or user.role == 'ADMW' or user.role == 'PREZ' or user.role == 'ADMIN' %}
         <li><a href="{% url 'inbound_letters:list' %}" class="nav-link">All Inbound Letters</a></li>
         {% endif %}
         {% if user.role == 'STF' %}

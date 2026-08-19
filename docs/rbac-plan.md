@@ -5,7 +5,8 @@
 | Role | Codigu | Deskrisaun |
 |---|---|---|
 | ADMIN | `ADMIN` | Administrador / TI — full system control |
-| SEKRETARIADU | `SEK` | Sekretariadu — rejistu karta, draft karta sai |
+| ADMIN WORKER | `ADMW` | Administrator Worker — day-to-day administration & Inbound Letter Registration/Archive |
+| SEKRETARIADU | `SEK` | Sekretariadu — view inbound letters & manage President schedule/category |
 | PREZIDENTE | `PREZ` | Prezidente / Autoridade / Diretór — despaxu, aprovasaun, monitorizasaun |
 | STAFF | `STF` | Staff / Funsionariu — asuntu karta, relatóriu konkluzaun |
 
@@ -13,31 +14,36 @@
 
 ## 2. Permission Matrix
 
-| Feature | ADMIN | SEKRETARIADU | PREZIDENTE | STAFF |
-|---|---|---|---|---|
-| **User Management** | | | | |
-| List/Create/Edit/Delete users | CRUD | — | — | — |
-| **Inbound Letters** | | | | |
-| Register new letter | ✓ | ✓ | — | — |
-| View all letters | ✓ | ✓ | ✓ | assigned only |
-| Edit letter details | ✓ | own only | notes field only | — |
-| Delete letter | ✓ | — | — | — |
-| Upload PDF | ✓ | ✓ | — | — |
-| **Despatch (Assignment)** | | | | |
-| Create assignment (despaxu) | ✓ | — | ✓ | — |
-| View all assignments | ✓ | ✓ | ✓ | own only |
-| Update progress/completion | — | — | — | ✓ |
-| **Outbound Letters** | | | | |
-| Create draft | ✓ | ✓ | — | ✓ |
-| Review draft (1st stage) | ✓ | — | ✓ | — |
-| Approve/Reject (2nd stage) | ✓ | — | ✓ | — |
-| Generate final PDF | ✓ | — | ✓ | — |
-| **Monitoring** | | | | |
-| View dashboard | ✓ | ✓ | ✓ | ✓ |
-| View all overdue tasks | ✓ | ✓ | ✓ | own only |
-| **Notifications** | | | | |
-| View in-app notifications | ✓ | ✓ | ✓ | ✓ |
-| Mark as read/unread | ✓ | ✓ | ✓ | ✓ |
+| Feature | ADMIN | ADMIN-W (ADMW) | SEKRETARIADU | PREZIDENTE | STAFF |
+|---|---|---|---|---|---|
+| **User Management** | | | | | |
+| List/Create/Edit users | CRUD | ✓ (no role changes) | — | — | — |
+| Delete users | ✓ | — | — | — | — |
+| **Inbound Letters** | | | | | |
+| Register new letter | ✓ | ✓ | — | — | — |
+| View all letters | ✓ | ✓ | ✓ | ✓ | assigned only |
+| Edit letter details | ✓ | ✓ | — | — | — |
+| Delete letter | ✓ | — | — | — | — |
+| Archive letter | ✓ | ✓ | — | — | — |
+| Upload PDF | ✓ | ✓ | — | — | — |
+| **Schedule & Category** | | | | | |
+| Manage President schedule / category | ✓ | ✓ | ✓ | ✓ | — |
+| **Despatch (Assignment)** | | | | | |
+| Create assignment (despaxu) | ✓ | ✓ | — | ✓ | — |
+| View all assignments | ✓ | ✓ | ✓ | ✓ | own only |
+| Update progress/completion | — | — | — | — | ✓ |
+| **Outbound Letters** | | | | | |
+| Create draft | ✓ | ✓ | ✓ | — | ✓ |
+| Review draft (1st stage) | ✓ | ✓ | — | ✓ | — |
+| Approve/Reject (2nd stage) | ✓ | ✓ | — | ✓ | — |
+| Generate final PDF | ✓ | ✓ | — | ✓ | — |
+| **Monitoring** | | | | | |
+| View dashboard | ✓ | ✓ | ✓ | ✓ | ✓ |
+| View all overdue tasks | ✓ | ✓ | ✓ | ✓ | own only |
+| **Notifications** | | | | | |
+| View in-app notifications | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Mark as read/unread | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **System Configuration / IT** | ✓ | — | — | — | — |
 
 ---
 

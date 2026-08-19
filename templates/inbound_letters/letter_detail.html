@@ -9,10 +9,11 @@
     <span class="{% if letter.category == 'KVT' %}badge-maroon{% elif letter.category == 'AUD' %}bg-gray-100 text-gray-700{% elif letter.category == 'PRP' %}bg-blue-100 text-blue-700{% else %}bg-yellow-100 text-yellow-700{% endif %} px-2 py-1 rounded text-xs align-middle ml-2">{{ letter.get_category_display }}</span>
   </h1>
   <div class="flex gap-2">
-    {% if user.role == 'ADMIN' or user.role == 'SEK' and letter.registered_by == user and letter.status != 'CMP' and letter.status != 'ARC' %}
+    {% if user.role == 'ADMIN' or user.role == 'ADMIN_WORKER' %}
     <a href="{% url 'inbound_letters:edit' letter.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">Edit</a>
     {% endif %}
-    {% if letter.status != 'ARC' and user.role == 'ADMIN' or letter.status != 'ARC' and user.role == 'PREZ' %}
+    
+    {% if user.role == 'ADMIN' or user.role == 'PREZ' or user.role == 'ADMIN_WORKER' %}
       {% if letter.status == 'REG' or letter.status == 'REJ' %}
       <form method="post" action="{% url 'inbound_letters:decide' letter.pk %}" class="inline">
         {% csrf_token %}
@@ -21,23 +22,21 @@
         <button type="submit" name="decision" value="REJ" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Reject</button>
       </form>
       {% endif %}
-      {% if letter.category == 'PED' or letter.category == 'PRP' %}
-        {% if letter.status == 'APR' %}
-        <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
-        {% endif %}
-        {% if letter.status == 'CMP' %}
-        <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
-          {% csrf_token %}
-          <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive</button>
-        </form>
-        {% endif %}
-      {% else %}
-        <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
-          {% csrf_token %}
-          <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive</button>
-        </form>
+    {% endif %}
+
+    {% if letter.category == 'PED' or letter.category == 'PRP' %}
+      {% if letter.status == 'APR' and user.role == 'PREZ' or letter.status == 'APR' and user.role == 'ADMIN' %}
+      <a href="{% url 'inbound_letters:assign' letter.pk %}" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 text-sm">Despaxu</a>
       {% endif %}
     {% endif %}
+
+    {% if user.role == 'ADMW' %}
+      <form method="post" action="{% url 'inbound_letters:archive' letter.pk %}" class="inline">
+        {% csrf_token %}
+        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">Archive Letter</button>
+      </form>
+    {% endif %}
+
     {% if user.role == 'ADMIN' %}
     <a href="{% url 'inbound_letters:delete' letter.pk %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">Delete</a>
     {% endif %}
