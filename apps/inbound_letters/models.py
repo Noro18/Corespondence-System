@@ -129,6 +129,35 @@ class InboundLetter(models.Model):
     def __str__(self):
         return f"{self.tracking_code} - {self.title}"
 
+    @property
+    def is_new(self):
+        from django.utils import timezone
+
+        if self.status in (self.Status.COMPLETED, self.Status.ARCHIVED):
+            return False
+        if self.status == self.Status.REGISTERED:
+            return True
+        cutoff = timezone.now() - datetime.timedelta(days=3)
+        return self.received_date >= cutoff
+
+    @property
+    def due_status(self):
+        """Return 'overdue', 'due_soon', or None based on active assignments."""
+        active = [
+            a
+            for a in self.assignments.all()
+            if a.status in (Assignment.Status.PENDING, Assignment.Status.IN_PROGRESS)
+        ]
+        if not active:
+            return None
+        today = datetime.date.today()
+        soonest = min(a.due_date for a in active)
+        if soonest < today:
+            return "overdue"
+        if (soonest - today).days <= 3:
+            return "due_soon"
+        return None
+
     def sync_status(self):
         assignments = self.assignments.all()
         if assignments.exists() and all(

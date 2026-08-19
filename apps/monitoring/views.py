@@ -33,7 +33,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["overdue"] = assignments.filter(
             status__in=["PND", "IPR"], due_date__lt=today
         ).count()
-        context["recent_letters"] = letters.select_related("sender")[:10]
+        context["today"] = today
+        context["show_signals"] = user.role == user.Role.SEKRETARIADU
+        context["recent_letters"] = letters.select_related("sender").prefetch_related("assignments")[:10]
         context["my_tasks"] = assignments.filter(assigned_to=user).select_related(
             "letter"
         )[:10]
