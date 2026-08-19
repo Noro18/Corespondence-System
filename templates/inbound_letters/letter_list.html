@@ -8,7 +8,7 @@
   <h1 class="text-2xl font-bold text-gray-800">Inbound Letters</h1>
   <div class="flex items-center gap-2">
     <a href="{% url 'inbound_letters:export' %}{% if request.GET.category %}?category={{ request.GET.category }}{% endif %}" class="btn-steel">Export CSV</a>
-    {% if user.role == 'SEK' or user.role == 'ADMIN' %}
+    {% if user.role == 'ADMW' or user.role == 'ADMIN' %}
     <a href="{% url 'inbound_letters:create' %}" class="btn-maroon">+ Register Letter</a>
     {% endif %}
   </div>
@@ -63,7 +63,7 @@
         </td>
         <td class="px-6 py-3">
           <a href="{% url 'inbound_letters:detail' letter.pk %}" class="btn-plain">View</a>
-          {% if user.role == 'ADMIN' or user.role == 'SEK' and letter.registered_by == user and letter.status != 'CMP' and letter.status != 'ARC' %}
+          {% if user.role == 'ADMIN' or user.role == 'ADMIN_WORKER' or user.role == 'SEK' and letter.registered_by == user and letter.status != 'CMP' and letter.status != 'ARC' %}
           <a href="{% url 'inbound_letters:edit' letter.pk %}" class="btn-plain">Edit</a>
           {% endif %}
         </td>

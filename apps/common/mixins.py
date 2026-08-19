@@ -18,6 +18,14 @@ class AdminMixin(RoleRequiredMixin):
     allowed_roles = [CustomUser.Role.ADMIN]
 
 
+class AdministratorWorkerOnlyMixin(RoleRequiredMixin):
+    allowed_roles = [CustomUser.Role.ADMIN_WORKER]
+
+
+class AdministratorWorkerMixin(RoleRequiredMixin):
+    allowed_roles = [CustomUser.Role.ADMIN, CustomUser.Role.ADMIN_WORKER]
+
+
 class SekretariaduMixin(RoleRequiredMixin):
     allowed_roles = [CustomUser.Role.ADMIN, CustomUser.Role.SEKRETARIADU]
 

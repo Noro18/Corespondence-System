@@ -11,6 +11,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser):
     class Role(models.TextChoices):
         ADMIN = "ADMIN", "Administrator"
+        ADMIN_WORKER = "ADMW", "Administrator Worker"
         SEKRETARIADU = "SEK", "Secretariat"
         PREZIDENTE = "PREZ", "President"
         STAFF = "STF", "Staff"
